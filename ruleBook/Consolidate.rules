@@ -12,7 +12,7 @@ if 'subject' in config:
 ############
 #       QC
 ############
-rule QC:
+rule consolidated_QC:
         input:
                 bam="{base}/{TIME}/{sample}/{sample}.bwa.final.bam",
                 hsMatrix="{base}/{TIME}/{sample}/qc/{sample}.hsmetrics",
@@ -46,7 +46,7 @@ rule QC_Summary_Patient:
 	input : lambda wildcards: SUB_CON_QC[wildcards.subject]
 	output: "{subject}/{TIME}/qc/{subject}.consolidated_QC.txt"
 	params:
-		rulename  = "QC_Sum",
+		rulename  = "QC_Summary_Patient",
 		batch     = config[config['host']]["job_default"]
 	shell: """
 	#######################
@@ -61,7 +61,7 @@ rule QC_Summary:
 	input : CON_QC
 	output: "Consolidated_QC.txt"
 	params:
-		rulename  = "QC_Sum",
+		rulename  = "QC_Summary",
 		batch	  = config[config['host']]["job_default"]
 	shell: """
 	#######################

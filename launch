@@ -84,7 +84,7 @@ if (`hostname` =~ /cn/ or `hostname` =~ /biowulf.nih.gov/){
 		my $cmd = "(
 		export TMP=$NOW
 		export TIME=$time
-		module load snakemake/3.8.0
+		module load snakemake/5.4.0
 		export NGS_PIPELINE=$NGS_PIPELINE
 		export WORK_DIR=$workDir
 		export DATA_DIR=$dataDir
@@ -185,7 +185,7 @@ print "$jobid\t$sheet\t$NGS_PIPELINE\t$workDir/ngs_pipeline_${sheet_name}_$NOW.l
 	#
 		export TMP="20160415"
 		export TIME="20160415"
-		module load snakemake/3.8.0
+		module load snakemake/5.4.0
                 export NGS_PIPELINE="/data/Clinomics/Tools/ngs_pipeline-dev/"
                 export WORK_DIR="`pwd`"
                 export DATA_DIR="/data/khanlab/projects/DATA/"

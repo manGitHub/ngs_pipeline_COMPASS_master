@@ -443,7 +443,7 @@ rule HapCall_RNASeq:
 		dbsnp=config["dbsnp"]
 	output:
 		vcf="{base}/{TIME}/{sample}/calls/{sample}.HC_RNASeq.raw.vcf"
-	version: config["GATK_new"]
+	version: config["GATK"]
 	params:
 		rulename = "HapCall_RNASeq",
 		batch    = config[config['host']]["job_gatk_RNA"]

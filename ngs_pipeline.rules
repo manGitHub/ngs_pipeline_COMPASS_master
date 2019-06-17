@@ -1,3 +1,4 @@
+
 import itertools
 import os
 import collections
@@ -433,28 +434,33 @@ rule FASTQC:
 #       BWA
 ############
 rule BWA:
-	input: R=lambda wildcards: FQ[wildcards.sample],
-		ref=config["bwaIndex"]
+	input: R=lambda wildcards: FQ[wildcards.sample]
+		
 	output:
 		temp("{base}/{TIME}/{sample}/{sample}.bwa.bam"),
 		temp("{base}/{TIME}/{sample}/{sample}.bwa.bam.bai")
 	version: config["bwa"]
 	params:
+		ref  = config["bwaIndex"],
 		rulename  = "BWA",
 		platform  = config["platform"],
 		samtools  = config["samtools"],
-		batch     = config[config['host']]["job_bwa"]
+		batch     = config[config['host']]["job_bwa"],
+		picard    = config["picard"]
 	shell: """
 	#######################
 	module load bwa/{version}
 	module load samtools/{params.samtools}
+        module load picard/{params.picard}
 	R1=`echo "{input.R}" |sed -e 's/ /\\n/g' |grep "_R1"`
 	R2=`echo "{input.R}" |sed -e 's/ /\\n/g' |grep "_R2"`
 	
 	THREADS=`expr ${{THREADS}} - 2`
 	
-	bwa mem -M -t ${{THREADS}} -R '@RG\\tID:{wildcards.sample}\\tSM:{wildcards.sample}\\tLB:{wildcards.sample}\\tPL:{params.platform}' {input.ref} "<zcat ${{R1}}" "<zcat ${{R2}}" | samtools view -Sbh - | samtools sort -m 30000000000 - {wildcards.base}/{TIME}/{wildcards.sample}/{wildcards.sample}.bwa
+	bwa mem -M -t ${{THREADS}} -R '@RG\\tID:{wildcards.sample}\\tSM:{wildcards.sample}\\tLB:{wildcards.sample}\\tPL:{params.platform}' {params.ref}  $R1 $R2 | samtools view -Sbh -o {wildcards.base}/{TIME}/{wildcards.sample}/{wildcards.sample}.bwa1.bam -
+        java -Xmx${{MEM}}g  -jar $PICARD_JAR SortSam I={wildcards.base}/{TIME}/{wildcards.sample}/{wildcards.sample}.bwa1.bam O={wildcards.base}/{TIME}/{wildcards.sample}/{wildcards.sample}.bwa.bam  SORT_ORDER=coordinate 
 	samtools index {wildcards.base}/{TIME}/{wildcards.sample}/{wildcards.sample}.bwa.bam
+        rm {wildcards.base}/{TIME}/{wildcards.sample}/{wildcards.sample}.bwa1.bam
 	#######################
 	"""
 ############
@@ -616,7 +622,7 @@ rule HotSpotCoverage:
 	input:
 		bam="{base}/{TIME}/{sample}/{sample}.{aligner}.final.bam",
 		interval=lambda wildcards: config['hotspot_bed'][config['sample_captures'][wildcards.sample]],
-		genome=config["reference"].replace(".fasta",".genome")
+		genome=config["reference"].replace(".fa",".genome")
 	output: "{base}/{TIME}/{sample}/qc/{sample}.{aligner}.hotspot.depth"
 	version: config["bedtools"]
 	params:

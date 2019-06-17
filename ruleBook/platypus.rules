@@ -16,7 +16,7 @@ rule PLATYPUS:
 	shell: """
 	#######################
 	module load platypus/{version}
-	platypus callVariants --nCPU=${{THREADS}} --bufferSize=1000000 --maxReads=100000000 --bamFiles={input.bam} --regions={input.interval} --output={output.vcf} --refFile={input.ref}  --logFileName= "log/platypus.{subject}"
+	platypus callVariants --nCPU=${{THREADS}} --bufferSize=1000000 --maxReads=100000000 --bamFiles={input.bam} --regions={input.interval} --output={output.vcf} --refFile={input.ref}  
 	sed -i 's/.bwa.final//g' {output.vcf}
 	#######################
 	"""

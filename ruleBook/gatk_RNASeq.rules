@@ -15,14 +15,14 @@ rule GATK_RNASeq_Trim:
         output:
                 bam=temp("{base}/{TIME}/{sample}/{sample}.star.trim.bam"),
                 index=temp("{base}/{TIME}/{sample}/{sample}.star.trim.bai"),
-        version: config["GATK_new"]
+        version: config["GATK"]
         params:
-                rulename  = "gatk_R",
+                rulename  = "GATK_RNASeq_Trim",
                 batch     = config[config['host']]["job_gatk_RNA"]
         shell: """
         #######################
         module load GATK/{version}
-        java -Xmx${{MEM}}g -Djava.io.tmpdir=${{LOCAL}} -jar $GATK_JAR -T SplitNCigarReads -R {input.ref} -I {input.bam} -o {output.bam} -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60 -U ALLOW_N_CIGAR_READS
+        java -Xmx${{MEM}}g -Djava.io.tmpdir=${{LOCAL}} -jar $GATK_JAR -T SplitNCigarReads -R {input.ref} -I {input.bam} -o {output.bam} -U ALLOW_N_CIGAR_READS
         ######################
         """
 ############
@@ -36,9 +36,9 @@ rule GATK_RNASeq_RTC:
                 mills=config["Mills_and_1000G"]
         output:
                 intervals=temp("{base}/{TIME}/{sample}/{sample}.star.realignment.intervals"),
-        version: config["GATK_new"]
+        version: config["GATK"]
         params:
-                rulename  = "gatk_R",
+                rulename  = "GATK_RNASeq_RTC",
                 batch     = config[config['host']]["job_gatk_RNA"]
         shell: """
         #######################
@@ -59,9 +59,9 @@ rule GATK_RNASeq_IR:
         output:
                 bam=temp("{base}/{TIME}/{sample}/{sample}.star.lr.bam"),
                 index=temp("{base}/{TIME}/{sample}/{sample}.star.lr.bai"),
-        version: config["GATK_new"]
+        version: config["GATK"]
         params:
-                rulename  = "gatk_R",
+                rulename  = "GATK_RNASeq_IR",
                 batch     = config[config['host']]["job_gatk_RNA"]
         shell: """
         #######################
@@ -80,9 +80,9 @@ rule GATK_RNASeq_BR:
                 mills=config["Mills_and_1000G"]
         output:
                 mat=temp("{base}/{TIME}/{sample}/{sample}.star.recalibration.matrix.txt"),
-        version: config["GATK_new"]
+        version: config["GATK"]
         params:
-                rulename  = "gatk_R",
+                rulename  = "GATK_RNASeq_BR",
                 batch     = config[config['host']]["job_gatk_RNA"]
         shell: """
         #######################
@@ -103,9 +103,9 @@ rule GATK_RNASeq_PR:
         output:
                 bam="{base}/{TIME}/{sample}/{sample}.star.final.bam",
                 index="{base}/{TIME}/{sample}/{sample}.star.final.bam.bai",
-        version: config["GATK_new"]
+        version: config["GATK"]
         params:
-                rulename  = "gatk_R",
+                rulename  = "GATK_RNASeq_PR",
                 batch     = config[config['host']]["job_gatk_RNA"]
         shell: """
         #######################

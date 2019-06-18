@@ -1,42 +1,3 @@
-<<<<<<< HEAD
-############
-#       STAR
-############
-rule STAR_TPM:
-	input:  R=lambda wildcards: FQ[wildcards.sample],
-		R1="{subject}/{TIME}/FQ/{sample}_R1.fastq.gz",
-        	R2="{subject}/{TIME}/FQ/{sample}_R2.fastq.gz",
-	output:
-		temp("{subject}/{TIME}/{sample}/{sample}.star_UCSC.bam"),
-		temp("{subject}/{TIME}/{sample}/{sample}.star_UCSC.bam.bai")
-	version: config["STAR"]
-	params:
-		rulename  = "STAR_TPM",
-		batch     = config[config['host']]['job_STAR_TPM'],
-		star_ref  = config['STAR_2.5.3a'],
-		home      = WORK_DIR,
-	shell: """
-	#######################
-	module load STAR/{version} samtools
-	cd ${{LOCAL}}/
-	# running two pass mapping
-	STAR 	--outTmpDir twopass\
-		--genomeDir {params.star_ref} \
-                --readFilesIn {input.R[0]} {input.R[1]} \
-		--readFilesCommand zcat\
-                --outSAMtype BAM SortedByCoordinate\
-		--twopassMode Basic \
-		--outFileNamePrefix {wildcards.sample}_ucsc \
-		--runThreadN ${{THREADS}} \
-		--outFilterMismatchNmax 2\
-		--outSAMunmapped Within\
-	echo "Finished STAR twopass mapping"
-	mv -f {wildcards.sample}_ucscAligned.sortedByCoord.out.bam {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/{wildcards.sample}.star_UCSC.bam
-	samtools index {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/{wildcards.sample}.star_UCSC.bam
-	#######################
-	"""
-=======
->>>>>>> update_RNA_analysis
 
 if 'RNASeq' in config:
 	#The subjects in this list have at least one transcriptome library. 
@@ -48,137 +9,10 @@ if 'RNASeq' in config:
 		
 
 
-
-'''
-
-##################
-# RNASeQC_star
-##################
-rule RNASeQC_star:
-	input:
-		bam="{base}/{TIME}/{sample}/{sample}.ucsc.star.dd.bam",
-		bai="{base}/{TIME}/{sample}/{sample}.ucsc.star.dd.bam.bai",
-		rna_interval=config['rRNA_interval_star'],
-		gtf=config["UCSC_star"],
-		ref=config["reference"]	,	
-	output: "{base}/{TIME}/{sample}/qc/rnaseqc/report.html"
-	version: config["rnaseqc"],
-	params:
-		rulename="RNASeQC_star",
-		R	=config['version_R'],
-		picard	=config["picard"],
-		batch	= config[config['host']]["job_STAR"],
-		home	  = WORK_DIR,
-	shell: """
-	###########################
-	module load rnaseqc/{version}
-	module load  picard/{params.picard}
-	module load R/{params.R}
-	if [ -d "{params.home}/{wildcards.base}/{TIME}/{wildcards.sample}/qc/rnaseqc" ]; then rm -Rf {params.home}/{wildcards.base}/{TIME}/{wildcards.sample}/qc/rnaseqc; fi
-	java -Xmx${{MEM}}g  -Djava.io.tmpdir=${{LOCAL}} -jar $RNASEQCPATH/RNA-SeQC_v1.1.8.jar   -r {input.ref} -rRNA {input.rna_interval} -o {wildcards.base}/{TIME}/{wildcards.sample}/qc/rnaseqc  -s "{wildcards.sample}|{input.bam}|{wildcards.sample}" -t {input.gtf}	
-	###########################
-	"""	
-
-<<<<<<< HEAD
-############
-# featureCounts
-#############
-rule FeatureCounts:
-	input:
-		bam="{base}/{TIME}/{sample}/{sample}.star_UCSC.bam",
-		ref=lambda wildcards: config['GTF'][wildcards.gtf],
-		script=NGS_PIPELINE + "/scripts/featureCounts.v2.R",
-		trasncriptRDS=lambda wildcards: config['RDS'][wildcards.gtf],
-		geneRDS=lambda wildcards: config['RDS'][wildcards.gtf].replace('transcript', 'gene'),
-		exonRDS=lambda wildcards: config['RDS'][wildcards.gtf].replace('transcript', 'exon'),
-	output:
-		"{base}/{TIME}/{sample}/TPM_{gtf}/{sample}.transcript.TPM.txt",
-		"{base}/{TIME}/{sample}/TPM_{gtf}/{sample}.gene.TPM.txt",
-		"{base}/{TIME}/{sample}/TPM_{gtf}/{sample}.exon.TPM.txt",
-	version: config['version_R']
-	params:
-		rulename   = "FeatureCounts",
-		batch      =config[config['host']]['job_featCount'],
-		work_dir =  WORK_DIR
-	shell: """
-	#######################
-	module load R/{version}
-	cd ${{LOCAL}}
-	{input.script} --nt ${{THREADS}} --lib="{wildcards.sample}" --targetFile="{params.work_dir}/{input.bam}" --referenceGTF="{input.ref}" --featureType="transcript" --resultOut="{params.work_dir}/{wildcards.base}/{wildcards.TIME}/{wildcards.sample}/TPM_{wildcards.gtf}/" --annotationRDS={input.trasncriptRDS}
-	{input.script} --nt ${{THREADS}} --lib="{wildcards.sample}" --targetFile="{params.work_dir}/{input.bam}" --referenceGTF="{input.ref}" --featureType="gene" --resultOut="{params.work_dir}/{wildcards.base}/{wildcards.TIME}/{wildcards.sample}/TPM_{wildcards.gtf}/" --annotationRDS={input.geneRDS}
-	{input.script} --nt ${{THREADS}} --lib="{wildcards.sample}" --targetFile="{params.work_dir}/{input.bam}" --referenceGTF="{input.ref}" --featureType="exon" --resultOut="{params.work_dir}/{wildcards.base}/{wildcards.TIME}/{wildcards.sample}/TPM_{wildcards.gtf}/" --annotationRDS={input.exonRDS}
-	#######################
-	"""
-
-##############
-# STAR-UCSC
-###############
-rule STARucsc:
-	input:  R=lambda wildcards: FQ[wildcards.sample],
-		R1="{subject}/{TIME}/FQ/{sample}_R1.fastq.gz",
-		R2="{subject}/{TIME}/FQ/{sample}_R2.fastq.gz",
-	output:
-		temp("{subject}/{TIME}/{sample}/{sample}.UCSC_transcriptome.bam"),	
-	version: config["STAR"]	
-	params:
-		rulename  = "STARucsc",
-		batch     = config[config['host']]['job_STAR_TPM'],
-		star_ucsc_ref  = config['star_2.5.3a_ucsc'],
-		home	 = WORK_DIR,
-	shell: """
-	#################################
-	module load STAR/{version} samtools
-	cd ${{LOCAL}}/
-	# running two pass mapping
-	STAR    --outTmpDir twopass --genomeDir {params.star_ucsc_ref} --readFilesIn {input.R[0]} {input.R[1]} --readFilesCommand zcat --outSAMtype BAM SortedByCoordinate --twopassMode Basic --outFileNamePrefix {wildcards.sample}_UCSC_rsem --runThreadN ${{THREADS}} --outFilterMismatchNmax 2 --outSAMunmapped Within --quantMode TranscriptomeSAM 
-	
-	echo "Finished STAR twopass mapping"
-
-	mv -f {wildcards.sample}_UCSC_rsemAligned.toTranscriptome.out.bam {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/{wildcards.sample}.UCSC_transcriptome.bam
-	####################################
-	"""
-
-##############
-# RSEM-UCSC
-###############
-rule RSEMucsc:
-	input:
-		bam="{subject}/{TIME}/{sample}/{sample}.UCSC_transcriptome.bam",
-	output:
-		"{subject}/{TIME}/{sample}/RSEM_UCSC/{sample}.rsem_UCSC.genes.results",
-		"{subject}/{TIME}/{sample}/RSEM_UCSC/{sample}.rsem_UCSC.isoforms.results"
-	version: config["rsem"],
-	params:
-		rulename = "RSEMucsc",
-		ref	 = config['rsem_ucsc_ref'],
-		batch     = config[config['host']]['job_STAR'],
-		home	  = WORK_DIR,
-	shell: """
-	#################################
-	module load rsem/{version}
-	cd ${{LOCAL}}/
-	rsem-calculate-expression --no-bam-output --paired-end -p ${{THREADS}}  --estimate-rspd  --bam {params.home}/{input.bam} {params.ref} {wildcards.sample}_UCSC
-	echo "gene and transcript level counts generated"
-	mkdir -p {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/RSEM_UCSC
-	mv -f {wildcards.sample}_UCSC.genes.results {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/RSEM_UCSC/{wildcards.sample}.rsem_UCSC.genes.results
-	mv -f {wildcards.sample}_UCSC.isoforms.results {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/RSEM_UCSC/{wildcards.sample}.rsem_UCSC.isoforms.results
-	#################################
-	"""
-
-##############
-#STAR-ENS
-################
-rule STARens:
-	input:	R=lambda wildcards: FQ[wildcards.sample],
-		R1="{subject}/{TIME}/FQ/{sample}_R1.fastq.gz",
-		R2="{subject}/{TIME}/FQ/{sample}_R2.fastq.gz",
-=======
-'''
 # STAR alignment to hg19 reference using GENCODE annotation
 
 rule STAR:
 	input:	R=lambda wildcards: FQ[wildcards.sample]
->>>>>>> update_RNA_analysis
 	output:
 		temp("{subject}/{TIME}/{sample}/{sample}.star.bam"),
 		temp("{subject}/{TIME}/{sample}/{sample}.star.bam.bai"),
@@ -187,11 +21,7 @@ rule STAR:
 	version:
 		config["STAR"]
 	params:
-<<<<<<< HEAD
-		rulename = "STARens",
-=======
 		rulename = "STAR",
->>>>>>> update_RNA_analysis
 		samtools = config['samtools'],
 		batch    = config[config['host']]['job_STAR_TPM'],
 		star_gencode_ref  = config['star_2.7.0f_gencode'],
@@ -278,13 +108,8 @@ rule RSEM:
 		"{subject}/{TIME}/{sample}/RSEM/{sample}.rsem.isoforms.results",
 	version: config["rsem"],
 	params:
-<<<<<<< HEAD
-		rulename = "RSEMens",
-		ref      = config['rsem_ens_ref'],
-=======
 		rulename = "RSEM",
 		ref      = config['rsem_1.3.2_gencode'],
->>>>>>> update_RNA_analysis
 		batch    = config[config['host']]['job_STAR'],
 		home     = WORK_DIR,
 	shell: """

@@ -15,12 +15,9 @@
 	"STAR_2.5.3a"		: "/data/Compass/Ref/hg19/Index/STAR_hg19_2.5.3a",
 	"rsem_ens_ref"		: "/data/Compass/Ref/hg19/Index/RSEM_ENS/hg19",
 	"rsem_ucsc_ref"		: "/data/Compass/Ref/hg19/Index/RSEM_UCSC/hg19",
-<<<<<<< HEAD
-=======
 	"star_2.7.0f_gencode"	: "/data/Compass/dev/ref/index/star_2.7.0f_gencode",
 	"STAR_Fusion_CTAT_lib"	: "/data/Compass/dev/ref/index/star_fusion_1.6.0_CTAT_genome_lib/GRCh37_gencode_v19_CTAT_lib_Mar272019.plug-n-play/ctat_genome_lib_build_dir",
 	"rsem_1.3.2_gencode"	: "/data/Compass/dev/ref/index/rsem_1.3.2_gencode/hg19",
->>>>>>> update_RNA_analysis
 	"reference"		: "/data/Compass/dev/ref/Gencode_human_release_30_GRCh37/hg19.fa",
 	"HLA"			: "/data/Compass/Ref/hg19/HLA/",
 	"version_R"		: "3.4",
@@ -124,22 +121,14 @@
 	"exon_Bed_UCSC"		: "/data/Compass/Ref/hg19/GTF/Exons_06302016_refseq_formatted.sorted.bed",
 	"exon_Bed_ENS"		: "/data/Compass/Ref/hg19/GTF/Exons_06302016_ensembl_formatted.sorted.bed",
 	"gene_coord"		: "/data/Compass/Ref/hg19/gene_coordinates.txt",
-<<<<<<< HEAD
-	"ref_flat"		: "/data/Compass/Ref/hg19/GTF/refFlat.txt.gz",
-	"rRNA_interval"		: "/data/Compass/Ref/hg19/GTF/rRNA_interval_file",
-=======
 	"ref_flat"		: "/data/Compass/dev/ref/Gencode_human_release_30_GRCh37/gencode_ref_ann/ref_flat.txt",
 	"rRNA_interval"		: "/data/Compass/dev/ref/Gencode_human_release_30_GRCh37/gencode_ref_ann/ribosomal.interval_list",
->>>>>>> update_RNA_analysis
 	"GTF"			: {
 				"ENS" : "/data/Compass/Ref/hg19/GTF/06302016_ensembl.gtf",
 				"UCSC": "/data/Compass/Ref/hg19/GTF/06302016_refseq.gtf"
 	},
 	"UCSC_star"		: "/data/Compass/Ref/hg19/GTF/ucsc.hg19_star.gtf",
-<<<<<<< HEAD
-=======
 	"gencode_gtf"		: "/data/Compass/dev/ref/Gencode_human_release_30_GRCh37/hg19.gtf",
->>>>>>> update_RNA_analysis
 	"rRNA_interval_star"	: "/data/Compass/Ref/hg19/GTF/rRNA_ucsc19_star.list",
 	"RDS"                   : {
 				"ENS" : "/data/Compass/Ref/hg19/AnnotationRDS/annotation_ENSEMBL_transcript.RDS",

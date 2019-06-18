@@ -1,9 +1,6 @@
 {
-	"pipeline_version"	: "v3.2dev",
-<<<<<<< HEAD
+	"pipeline_version"	: "v4.0dev",
 	"mail"			: "-c manoj.tyagi@nih.gov -c nagarajs2@mail.nih.gov -c vineela.gangalapudi@nih.gov ",
-=======
->>>>>>> update_RNA_analysis
 	"platform"		: "Illumina",
 	"samtools"		: "0.1.19",
 	"samtools_old"		: "0.1.19",

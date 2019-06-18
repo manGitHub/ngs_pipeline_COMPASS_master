@@ -2,8 +2,8 @@
 # coding: utf-8
 rule RNASeqQC:
 	input:
-		bam="{base}/{TIME}/{sample}/{sample}.tophat.final.bam",
-		bai="{base}/{TIME}/{sample}/{sample}.tophat.final.bam.bai",
+		bam="{base}/{TIME}/{sample}/{sample}.star.dd.bam",
+		bai="{base}/{TIME}/{sample}/{sample}.star.dd.bam.bai",
 		rna_interval=config['rRNA_interval'],
 		ref_flat=config['ref_flat'],
 	output:
@@ -23,8 +23,8 @@ rule RNASeqQC:
 	"""
 rule RNASeqQC1:
 	input:
-		bam="{base}/{TIME}/{sample}/{sample}.tophat.final.bam",
-		bai="{base}/{TIME}/{sample}/{sample}.tophat.final.bam.bai",
+		bam="{base}/{TIME}/{sample}/{sample}.star.dd.bam",
+		bai="{base}/{TIME}/{sample}/{sample}.star.dd.bam.bai",
 	output:
 		table="{base}/{TIME}/{sample}/qc/{sample}.AlignmentSummaryMetrics.txt",
 	version: config["picard"]
@@ -87,3 +87,32 @@ rule RNASeqQC_3:
 	cat {input} {output} |sort|uniq |sed -e '/^$/d'>{output}
 	#######################
 	"""
+
+##################
+# RNASeQC_star
+##################
+rule RNASeQC_star:
+    input:
+        bam="{base}/{TIME}/{sample}/{sample}.star.dd.bam",
+        bai="{base}/{TIME}/{sample}/{sample}.star.dd.bam.bai",
+        rna_interval=config['rRNA_interval'],
+        gtf=config["gencode_gtf"],
+        ref=config["reference"],
+    output: "{base}/{TIME}/{sample}/qc/rnaseqc/report.html"
+    version: config["rnaseqc"],
+    params:
+        rulename="RNAseQC_star",
+        R       =config['version_R'],
+        picard  =config["picard"],
+        batch   = config[config['host']]["job_STAR"],
+        home      = WORK_DIR,
+    shell: """
+    ###########################
+    module load rnaseqc/{version}
+    module load  picard/{params.picard}
+    module load R/{params.R}
+    if [ -d "{params.home}/{wildcards.base}/{TIME}/{wildcards.sample}/qc/rnaseqc" ]; then rm -Rf {params.home}/{wildcards.base}/{TIME}/{wildcards.sample}/qc/rnaseqc; fi
+    java -Xmx${{MEM}}g  -Djava.io.tmpdir=${{LOCAL}} -jar $RNASEQCPATH/RNA-SeQC_v1.1.8.jar   -r {input.ref} -rRNA {input.rna_interval} -o {wildcards.base}/{TIME}/{wildcards.sample}/qc/rnaseqc  -s "{wildcards.sample}|{input.bam}|{wildcards.sample}" -t {input.gtf}
+    ###########################
+    """
+

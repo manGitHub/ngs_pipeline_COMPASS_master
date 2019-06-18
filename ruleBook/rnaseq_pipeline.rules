@@ -32,11 +32,11 @@ if 'RNASeq' in config:
 		for sample in SAM_RNASEQ[subject]:
 			TARGET_R += [subject+"/"+TIME+"/"+sample+"/"+sample+".star.final.bam"]
 			#TARGET_R += [subject+"/"+TIME+"/"+sample+"/"+sample+".tophat.final.bam"]
-			TARGET_R += [subject+"/"+TIME+"/"+sample+"/fusion/tophat-fusion.txt"]
+			#TARGET_R += [subject+"/"+TIME+"/"+sample+"/fusion/tophat-fusion.txt"]
 			TARGET_R += [subject+"/"+TIME+"/"+sample+"/fusion/fusion-catcher.txt"]
 			# silence Defuse rule 05/11/2018
 			#TARGET_R += [subject+"/"+TIME+"/"+sample+"/fusion/defuse.filtered.txt"]
-			TARGET_R += [subject+"/"+TIME+"/"+sample+"/fusion/STAR-fusion.txt"]
+			#TARGET_R += [subject+"/"+TIME+"/"+sample+"/fusion/STAR-fusion.txt"]
 			TARGET_R += [subject+"/"+TIME+"/"+sample+"/qc/fastqc/"+sample+"_R2_fastqc.html"]
 			TARGET_R += [subject+"/"+TIME+"/qc/"+subject+".circos.png"]
 			TARGET_R += [subject+"/"+TIME+"/"+sample+"/qc/"+sample+".star.flagstat.txt"]
@@ -48,15 +48,15 @@ if 'RNASeq' in config:
 			TARGET_R += [subject+"/"+TIME+"/"+sample+"/qc/"+sample+".star.gt"]
 			TARGET_R += [subject+"/"+TIME+"/"+sample+"/fusion/"+sample+".actionable.fusion.txt"]
 			TARGET_R += [subject+"/"+TIME+"/"+sample+"/calls/"+sample+".HC_RNASeq.annotated.txt"]
-#			TARGET_R += [subject+"/"+TIME+"/"+sample+"/"+sample+".UCSC_transcriptome.bam"]
-#			TARGET_R += [subject+"/"+TIME+"/"+sample+"/"+sample+".ENS_transcriptome.bam"]
-			TARGET_R += [subject+"/"+TIME+"/"+sample+"/RSEM_UCSC/"+sample+".rsem_UCSC.genes.results"]
-			TARGET_R += [subject+"/"+TIME+"/"+sample+"/RSEM_ENS/"+sample+".rsem_ENS.genes.results"]
+			#TARGET_R += [subject+"/"+TIME+"/"+sample+"/"+sample+".UCSC_transcriptome.bam"]
+			#TARGET_R += [subject+"/"+TIME+"/"+sample+"/"+sample+".ENS_transcriptome.bam"]
+			#TARGET_R += [subject+"/"+TIME+"/"+sample+"/RSEM_UCSC/"+sample+".rsem_UCSC.genes.results"]
+			#TARGET_R += [subject+"/"+TIME+"/"+sample+"/RSEM_ENS/"+sample+".rsem_ENS.genes.results"]
 			add_to_SUBJECT_ANNO(subject, "rnaseq", [subject+"/"+TIME+"/"+sample+"/calls/"+sample+".HC_RNASeq.annotated.txt"])
-			for gtf in config['GTF']:
-				TARGET_R += [subject+"/"+TIME+"/"+sample+"/TPM_"+gtf+"/"+sample+".transcript.TPM.txt"]
-				TARGET_R += [subject+"/"+TIME+"/"+sample+"/TPM_"+gtf+"/"+sample+".gene.TPM.txt"]
-				TARGET_R += [subject+"/"+TIME+"/"+sample+"/TPM_"+gtf+"/"+sample+".exon.TPM.txt"]
+			#for gtf in config['GTF']:
+			#	TARGET_R += [subject+"/"+TIME+"/"+sample+"/TPM_"+gtf+"/"+sample+".transcript.TPM.txt"]
+			#	TARGET_R += [subject+"/"+TIME+"/"+sample+"/TPM_"+gtf+"/"+sample+".gene.TPM.txt"]
+			#	TARGET_R += [subject+"/"+TIME+"/"+sample+"/TPM_"+gtf+"/"+sample+".exon.TPM.txt"]
 		TARGET_R  += ["{subject}/{TIME}/{sample}/calls/{sample}.HC_RNASeq.raw.vcf".format(TIME=TIME, subject=SUB2RNA[s], sample=s) for s in SAM_RNASEQ[subject]]
 		SUB_FUSION[subject] = ["{subject}/{TIME}/{sample}/fusion/{sample}.actionable.fusion.txt".format(TIME=TIME, subject=SUB2RNA[s], sample=s) for s in SAM_RNASEQ[subject]]
 		SUB_QC[subject]     = ["{subject}/{TIME}/{sample}/qc/{sample}.RnaSeqQC.txt".format(TIME=TIME, subject=SUB2RNA[s], sample=s) for s in SAM_RNASEQ[subject]]
@@ -83,6 +83,8 @@ if 'RNASeq' in config:
 
 ############
 include: NGS_PIPELINE +"/ruleBook/mixcr.rules"
+include: NGS_PIPELINE +"/ruleBook/STAR.rules"
+include: NGS_PIPELINE +"/rulebook/tophat.rules"
 
 ############
 #       RNASeq All
@@ -104,6 +106,8 @@ rule RNASeq:
 	#######################
 	"""
 ############
+
+'''
 #	Tophat
 ############
 rule TOPHAT:
@@ -183,6 +187,7 @@ rule TOPHAT_FUSION:
 	#######################
 	"""
 ############
+<<<<<<< HEAD
 #       Cufflinks
 ############
 rule CUFFLINKS:
@@ -286,14 +291,17 @@ rule EXON_EXP_ENS:
 	cat ${{LOCAL}}/ens*.out >{output.ens}
 	#######################
 	"""
+=======
+
+'''
+
+>>>>>>> update_RNA_analysis
 ############
 #       Fusioncatcher
 ############
 rule FUSION_CATCHER:
 	input:
 		R=lambda wildcards: FQ[wildcards.sample],
-		#R1="{base}/{TIME}/FQ/{sample}_R1.fastq.gz",
-		#R2="{base}/{TIME}/FQ/{sample}_R2.fastq.gz"
 	output:
 		"{base}/{TIME}/{sample}/fusion/fusion-catcher.txt",
 		"{base}/{TIME}/{sample}/fusion/fusion-catcher_summary_candidate_fusions.txt"
@@ -311,6 +319,7 @@ rule FUSION_CATCHER:
 	#######################
 	"""
 ############
+<<<<<<< HEAD
 #       deFuse, NOT used in the pipeline 8/11/2018
 ############
 rule DeFuse:
@@ -432,6 +441,8 @@ rule DeFuse:
 #	samtools index {params.home}/{wildcards.base}/{TIME}/{wildcards.sample}/{wildcards.sample}.star.bam
 #	#######################
 #	"""
+=======
+>>>>>>> update_RNA_analysis
 ############
 # RNASeq Hapcaller
 ############

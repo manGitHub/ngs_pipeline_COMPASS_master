@@ -11,12 +11,12 @@ if 'RNASeq' in config:
         if subject in SUB_IGV:
             SUB_IGV[subject] += ["{subject}/{TIME}/{sample}/{sample}.star.final.bam".format(TIME=TIME, subject=SUB2RNA[s], sample=s) for s in SAM_RNASEQ[subject]]
             SUB_IGV[subject] += ["{subject}/{TIME}/{sample}/{sample}.star.final.bam.tdf".format(TIME=TIME, subject=SUB2RNA[s], sample=s) for s in SAM_RNASEQ[subject]]
-            SUB_IGV[subject] += ["{subject}/{TIME}/{sample}/{sample}.star_UCSC.bam.tdf".format(TIME=TIME, subject=SUB2RNA[s], sample=s) for s in SAM_RNASEQ[subject]]
+#            SUB_IGV[subject] += ["{subject}/{TIME}/{sample}/{sample}.star_UCSC.bam.tdf".format(TIME=TIME, subject=SUB2RNA[s], sample=s) for s in SAM_RNASEQ[subject]]
         else:
             SUB_IGV[subject] = []
             SUB_IGV[subject] += ["{subject}/{TIME}/{sample}/{sample}.star.final.bam".format(TIME=TIME, subject=SUB2RNA[s], sample=s) for s in SAM_RNASEQ[subject]]
             SUB_IGV[subject] += ["{subject}/{TIME}/{sample}/{sample}.star.final.bam.tdf".format(TIME=TIME, subject=SUB2RNA[s], sample=s) for s in SAM_RNASEQ[subject]]
-            SUB_IGV[subject] += ["{subject}/{TIME}/{sample}/{sample}.star_UCSC.bam.tdf".format(TIME=TIME, subject=SUB2RNA[s], sample=s) for s in SAM_RNASEQ[subject]]
+#            SUB_IGV[subject] += ["{subject}/{TIME}/{sample}/{sample}.star_UCSC.bam.tdf".format(TIME=TIME, subject=SUB2RNA[s], sample=s) for s in SAM_RNASEQ[subject]]
         TARGET += ["{subject}/{TIME}/{sample}/{sample}.tophat.final.bam.tdf".format(TIME=TIME, subject=SUB2RNA[s], sample=s) for s in SAM_RNASEQ[subject]]
 TARGET +=SUB_IGV.values()
 ############

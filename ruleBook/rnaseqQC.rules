@@ -31,7 +31,7 @@ rule RNASeqQC1:
 	params:
 		rulename  ="RNASeqQC1",
 		batch     =config[config['host']]["job_markdup"],
-		ref       =config['Bowtie2Index'].replace('genome', 'genome.fa')
+		ref       =config['reference']
 	shell: """
 	#######################
 	module load picard/{version}
@@ -96,12 +96,12 @@ rule RNASeQC_star:
         bam="{base}/{TIME}/{sample}/{sample}.star.dd.bam",
         bai="{base}/{TIME}/{sample}/{sample}.star.dd.bam.bai",
         rna_interval=config['rRNA_interval'],
-        gtf=config["gencode_gtf"],
+        gtf=config["gencode_transcript_gtf"],
         ref=config["reference"],
     output: "{base}/{TIME}/{sample}/qc/rnaseqc/report.html"
     version: config["rnaseqc"],
     params:
-        rulename="RNAseQC_star",
+        rulename="RNASeQC_star",
         R       =config['version_R'],
         picard  =config["picard"],
         batch   = config[config['host']]["job_STAR"],

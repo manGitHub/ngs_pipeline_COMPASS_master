@@ -84,7 +84,7 @@ if 'RNASeq' in config:
 ############
 include: NGS_PIPELINE +"/ruleBook/mixcr.rules"
 include: NGS_PIPELINE +"/ruleBook/STAR.rules"
-include: NGS_PIPELINE +"/rulebook/tophat.rules"
+include: NGS_PIPELINE +"/ruleBook/tophat.rules"
 
 ############
 #       RNASeq All
@@ -105,91 +105,6 @@ rule RNASeq:
 	touch {output}
 	#######################
 	"""
-############
-
-'''
-#	Tophat
-############
-rule TOPHAT:
-	input:	R=lambda wildcards: FQ[wildcards.sample],
-		#R1="{base}/{TIME}/FQ/{sample}_R1.fastq.gz",
-		#R2="{base}/{TIME}/FQ/{sample}_R2.fastq.gz", 
-	output:
-		temp("{base}/{TIME}/{sample}/tophat_{sample}/accepted_hits.bam"),
-		temp("{base}/{TIME}/{sample}/tophat_{sample}/accepted_hits.bam.bai")
-	version: config["tophat"]
-	params:
-		rulename  = "TOPHAT",
-		samtools  = config['samtools'],
-		batch     = config[config['host']]["job_tophat"],
-		ref=config['Bowtie2Index']
-	shell: """
-	#######################
-	module load tophat/{version}
-	module load samtools/{params.samtools}
-	tophat -p ${{THREADS}} -o ${{LOCAL}} --keep-fasta-order --rg-id {wildcards.sample} --no-coverage-search --rg-sample {wildcards.sample} --rg-library {wildcards.sample} --rg-platform ILLUMINA --fusion-search --fusion-min-dist 100000 --mate-inner-dist 84 --mate-std-dev 74 {params.ref} {input.R[0]} {input.R[1]}
-	cp -rf ${{LOCAL}}/* {wildcards.base}/{TIME}/{wildcards.sample}/tophat_{wildcards.sample}/
-	samtools index {wildcards.base}/{TIME}/{wildcards.sample}/tophat_{wildcards.sample}/accepted_hits.bam
-	#######################
-	"""
-############
-#       Link Tophat bam file
-############
-rule TOPHAT_LINK:
-	input:
-		bam="{base}/{TIME}/{sample}/tophat_{sample}/accepted_hits.bam",
-		bai="{base}/{TIME}/{sample}/tophat_{sample}/accepted_hits.bam.bai",
-	output:
-		bam=temp("{base}/{TIME}/{sample}/{sample}.tophat.final.bam"),
-		bai=temp("{base}/{TIME}/{sample}/{sample}.tophat.final.bam.bai")
-	params:
-		rulename  = "TOPHAT_LINK",
-		batch     = config[config['host']]["job_default"]
-	shell: """
-	#######################
-	sleep 60
-	cd {wildcards.base}/{TIME}/{wildcards.sample}/
-	ln -sf tophat_{wildcards.sample}/accepted_hits.bam {wildcards.sample}.tophat.final.bam
-	ln -sf tophat_{wildcards.sample}/accepted_hits.bam.bai {wildcards.sample}.tophat.final.bam.bai
-	#######################
-	"""
-############
-#       Tophat-fusion
-############
-rule TOPHAT_FUSION:
-	input:
-		"{base}/{TIME}/{sample}/tophat_{sample}/accepted_hits.bam",
-		"{base}/{TIME}/{sample}/tophat_{sample}/accepted_hits.bam.bai"
-	output:
-		"{base}/{TIME}/{sample}/tophatfusion_out/result.txt",
-		"{base}/{TIME}/{sample}/fusion/tophat-fusion.txt"
-	version: config["tophat"]
-	params:
-		rulename = "TOPHAT_FUSION",
-		blast	 =config['version_blast'],
-		batch    =config[config['host']]['job_tophatPost'],
-		ref      =config['BowtieIndex'],
-		bowtie   =config['bowtie'],
-		tp_ref   =config['tophat_post_ref']
-	shell: """
-	#######################
-	module load tophat/{version}
-	module load bowtie/{params.bowtie}
-	module load blast/{params.blast}
-	cd {wildcards.base}/{TIME}/{wildcards.sample}/
-	rm -f blast ensGene.txt ensGtp.txt mcl refGene.txt
-	ln -s {params.tp_ref}/* .
-	tophat-fusion-post -p ${{THREADS}} --num-fusion-pairs 1 {params.ref}
-	rm blast ensGene.txt ensGtp.txt mcl refGene.txt
-	sed -i  '1s/^/Sample\\tGene_left\\tChr_left\\tCoordinate_left\\tGene_right\\tChr_right\\tCoordinate_right\\t#SpanningReads\\t#SpanningMatePairs\\t#SpanningMateEndOfPair\\tScore\\n/' tophatfusion_out/result.txt
-	ln -sf ../tophatfusion_out/result.html fusion/tophat-fusion.html
-	ln -sf ../tophatfusion_out/result.txt  fusion/tophat-fusion.txt
-	#######################
-	"""
-############
-
-'''
-
 ############
 #       Fusioncatcher
 ############

@@ -130,7 +130,7 @@
 	"UCSC_star"		: "/data/Compass/Ref/hg19/GTF/ucsc.hg19_star.gtf",
 	"gencode_gtf"		: "/data/Compass/dev/ref/Gencode_human_release_30_GRCh37/hg19.gtf",
 	"gencode_collapsed_gtf"		: "/data/Compass/dev/ref/Gencode_human_release_30_GRCh37/gencode_ref_ann/gencode.v30lift37.genes.gtf",
-	"gencode_transcript_gtf"		: "/data/Compass/dev/ref/Gencode_human_release_30_GRCh37/gencode_ref_ann/gencode.v30lift37.transcripts.gtf",
+	"gencode_transcript_gtf"		: "/data/Compass/dev/ref/Gencode_human_release_30_GRCh37/gencode.v30lift37_transcript.gtf",
 	"rRNA_interval_star"	: "/data/Compass/Ref/hg19/GTF/rRNA_ucsc19_star.list",
 	"RDS"                   : {
 				"ENS" : "/data/Compass/Ref/hg19/AnnotationRDS/annotation_ENSEMBL_transcript.RDS",

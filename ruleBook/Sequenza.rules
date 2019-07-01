@@ -21,7 +21,7 @@ rule PILE4SEQ:
 	input:
 		bam="{base}/{TIME}/{sample}/{sample}.bwa.final.bam",
 		ref=config["reference"],
-		genome=config["reference"].replace(".fasta",".genome"),
+		genome=config["reference"].replace(".fa",".genome"),
 		interval= lambda wildcards: config['target_intervals'][config['sample_captures'][wildcards.sample]],
 		seq=NGS_PIPELINE+ "/scripts/sequenza-utils.py"
 	output: temp("{base}/{TIME}/{sample}/{sample}.mpileup.gz")

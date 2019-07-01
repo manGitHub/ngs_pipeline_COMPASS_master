@@ -816,13 +816,13 @@ rule Strelka:
 	shell: """
 	#######################
 	module load strelka/{version}
-	configureStrelkaWorkflow.pl --normal={input[2]} --tumor={input[0]}\
-	--ref={input.ref} --config={params.config} --output-dir=${{LOCAL}}/strelka
-	make -j ${{SLURM_CPUS_PER_TASK}} -f ${{LOCAL}}/strelka/Makefile
+        #requested biowulf for write permissions, will fix the path once thats done.
+	configureStrelkaSomaticWorkflow.py --normalBam={input[2]} --tumorBam={input[0]} --referenceFasta=/data/Compass/dev/ref/Gencode_human_release_30_GRCh37/vineela_gencode_ref_ann/GRCh37.primary_assembly.genome.sorted.fa --config={params.config} --runDir=${{LOCAL}}/strelka
+	${{LOCAL}}/strelka/runWorkflow.py -m local 	
 	module load vcftools/{params.vcftools}
-	vcftools --vcf ${{LOCAL}}/strelka/results/passed.somatic.snvs.vcf --bed {input.interval} --out {output.snps} --recode --keep-INFO-all
+	vcftools --gzvcf ${{LOCAL}}/strelka/results/variants/somatic.snvs.vcf.gz --bed {input.interval} --out {output.snps} --recode --keep-INFO-all
 	mv -f {output.snps}.recode.vcf {output.snps}
-	vcftools --vcf ${{LOCAL}}/strelka/results/passed.somatic.indels.vcf --bed {input.interval}  --out {output.indels} --recode --keep-INFO-all
+	vcftools --gzvcf ${{LOCAL}}/strelka/results/variants/somatic.indels.vcf.gz --bed {input.interval}  --out {output.indels} --recode --keep-INFO-all
 	mv -f {output.indels}.recode.vcf {output.indels}
 	NORMAL=`basename {input[2]} .bwa.final.bam`
 	sed -i "s/FORMAT\\tNORMAL\\tTUMOR/FORMAT\\t${{NORMAL}}\\t{wildcards.Tumor}/g" {output.snps}

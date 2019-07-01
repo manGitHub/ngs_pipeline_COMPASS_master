@@ -17,7 +17,7 @@
 	"GATK"			: "3.8-1",
 	"bam2mpg"		: "1.0.1",
 	"MuTect"		: "1.1.7",
-	"strelka"		: "1.0.14",
+	"strelka"		: "2.9.0",
 	"vcftools"		: "0.1.13",
 	"platypus"		: "0.8.1",
 	"freebayes"		: "0.9.21",

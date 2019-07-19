@@ -57,7 +57,8 @@
 		"sureselect.exon.v6"	: "/data/Compass/Ref/hg19/design/NIAID.sureselect.exon.v6.target.bed",
 		"mayo_v5_urt"           : "/data/Compass/Ref/hg19/design/Agilent_S04380219_SureSelect_v5_utr_mayo.target.hg19.bed",
 		"panel_paed_v5_w5.1"	: "/data/Compass/Ref/hg19/design/panel_PAED_V5_w5.1.target.hg19.bed",
-		"idt.xgen.exome.res"	: "/data/Compass/Ref/hg19/design/IDT_xgen-exome-research-panel.target.hg19.bed"
+		"idt.xgen.exome.res"	: "/data/Compass/Ref/hg19/design/IDT_xgen-exome-research-panel.target.hg19.bed",
+		"Comp.ex.v1"		: "/data/Compass/Ref/hg19/design/NextraExome_v1.target.hg19.merged.bed"
 	},
 	"hotspot_bed"		:{
 		"wholegenome"		: "/data/Compass/Ref/hg19/hotspot/hg19_Hotspot.08.08.16_merged.bed",
@@ -89,7 +90,8 @@
 		"sureselect.exon.v5_utr": "/data/Compass/Ref/hg19/hotspot/hg19_Hotspot.08.08.16_merged.bed",
 		"sureselect.exon.v6"	: "/data/Compass/Ref/hg19/hotspot/hg19_Hotspot.08.08.16_merged.bed",
 		"panel_paed_v5_w5.1"	: "/data/Compass/Ref/hg19/hotspot/hg19_Hotspot.08.08.16_merged.bed",
-		"idt.xgen.exome.res"	: "/data/Compass/Ref/hg19/hotspot/hg19_Hotspot.08.08.16_merged.bed"
+		"idt.xgen.exome.res"	: "/data/Compass/Ref/hg19/hotspot/hg19_Hotspot.08.08.16_merged.bed",
+		"Comp.ex.v1"    	: "/data/Compass/Ref/hg19/hotspot/hg19_Hotspot.08.08.16_merged.bed"
 	},
 	"verifyBamID_vcf"       :{
 		"clin.ex.v1"		: "/data/Compass/Ref/hg19/verifyBamID/Clinical_Research_Exome.recode.vcf",

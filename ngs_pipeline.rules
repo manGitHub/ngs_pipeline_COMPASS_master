@@ -249,7 +249,7 @@ if 'sample_RNASeq' in config:
 			# Its possible to have Matched RNASeq, i.e. Tumor only sequencing (Exome/RNA) but missing Corrosponding Normal
 			#print(Tumor, "Corrosponding RNASeq found but matched Normal not found")
 ###########################################################################
-localrules: Khanlab_Pipeline, RNASeq
+localrules: Compass_Pipeline, RNASeq
 #IGV_Session, DBinput, AttachAnnotation, Expressed, vcf2txt, symlink_tophatBam, copyNovoBam, Actionable_Germline, Actionable_RNAseq, Actionable_Somatic, Actionable_Variants, Actionable_fusion, Sub_Fusion, makeConfig, TargetInterval, QC_Summary_Patient,QC_Summary,UnionSomaticCalls,TOPHAT_LINK, SampleGT,QC_Sum, FormatInput, RNASeqQC_1,RNASeqQC1 RNASeqQC_2,RNASeqQC_3, Cuff_Mat
 #Circos, CoveragePlot, BoxPlot_Hotspot, makeConfig,Ideogram
 ###########################################################################
@@ -308,7 +308,7 @@ onerror:
         shell("find .snakemake/ ! -readable -prune -group $USER -exec chgrp -f {GROUP} {{}} \;")
 	shell("find {PATIENTS} -group $USER -exec chgrp -f {GROUP} {{}} \;")
 	shell("find {PATIENTS} \( -type f -user $USER -exec chmod g+rw {{}} \; \) , \( -type d -user $USER -exec chmod g+rwx {{}} \; \)")
-	shell("ssh {HOST} \"echo 'ngs-pipeline version {VERSION} failed on {PATIENTS}. Error occured on {HOST}. Working Dir:  {WORK_DIR}' |mutt -s 'Khanlab ngs-pipeline Status' `whoami`@mail.nih.gov  {MAIL} \"")
+	shell("ssh {HOST} \"echo 'ngs-pipeline version {VERSION} failed on {PATIENTS}. Error occured on {HOST}. Working Dir:  {WORK_DIR}' |mutt -s 'Compass ngs-pipeline Status' `whoami`@mail.nih.gov  {MAIL} \"")
 	shell("find .snakemake/ ! -readable -prune -group $USER -exec chgrp -f {GROUP} {{}} \;")
 onstart:
 	f = open('ngs_pipeline_%s_%s.csv' % (SAMPLESHEET, NOW) , 'w')
@@ -318,13 +318,13 @@ onstart:
 		print (subject,diagnosis,TIME,sep='\t', end='\n',file=f)
 	
 	shell("for sub in {PATIENTS}; do rm -rf {WORK_DIR}/${{sub}}/{TIME}/successful.txt ; done")
-	shell("ssh {HOST} \"echo 'ngs-pipeline version {VERSION} started on {PATIENTS} on {HOST}. Working Dir:  {WORK_DIR}' |mutt -s 'Khanlab ngs-pipeline Status' `whoami`@mail.nih.gov {MAIL} \"")
+	shell("ssh {HOST} \"echo 'ngs-pipeline version {VERSION} started on {PATIENTS} on {HOST}. Working Dir:  {WORK_DIR}' |mutt -s 'Compass ngs-pipeline Status' `whoami`@mail.nih.gov {MAIL} \"")
 onsuccess:
 	shell("find .snakemake/ ! -readable -prune \( -type f -user $USER -exec chmod g+r {{}} \; \) , \( -type d -user $USER -exec chmod g+rwx {{}} \; \)")
 	shell("find .snakemake/ ! -readable -prune -group $USER -exec chgrp -f {GROUP} {{}} \;")
 	print("Workflow finished, no error")
 ###########################################################################
-rule Khanlab_Pipeline:
+rule Compass_Pipeline:
 	input:
 		TARGET,
 		expand ("ngs_pipeline_{SAMPLESHEET}_{NOW}.rnaseq.done", NOW=NOW, SAMPLESHEET=SAMPLESHEET)
@@ -352,7 +352,7 @@ rule Khanlab_Pipeline:
 		chmod g+rw {WORK_DIR}/${{sub}}/{TIME}/successful.txt 	
 		chgrp {params.group} {WORK_DIR}/${{sub}}/{TIME}/successful.txt
         done
-	ssh {params.host} "{params.mail} --location {WORK_DIR} --host {params.host} --head --version {version} {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv |mutt -e \\\"my_hdr Content-Type: text/html\\\" -s 'Khanlab ngs-pipeline Status' `whoami`@mail.nih.gov {params.email}"
+	ssh {params.host} "{params.mail} --location {WORK_DIR} --host {params.host} --head --version {version} {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv |mutt -e \\\"my_hdr Content-Type: text/html\\\" -s 'Compass ngs-pipeline Status' `whoami`@mail.nih.gov {params.email}"
 	rm -rf {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv
 	#######################
 	"""

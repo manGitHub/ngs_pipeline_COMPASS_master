@@ -10,7 +10,7 @@ while(<FH>){
 	}
 	my @list =split("\t", $_);
 	print "$list[0]\t$list[2]\t$list[2]\t$list[3]\t$list[4]\t";
-	for (my $i=10; $i<=43; $i++){
+	for (my $i=11; $i<=46; $i++){
 		if (not defined $list[$i]){
 			$list[$i] = "NA";
 		}
@@ -18,6 +18,5 @@ while(<FH>){
 			$list[$i] =  sprintf("%.2f", $list[$i]);
 		}
 	}
-	print join("\t",@list[10..20])."\t".join("\t",@list[29..43])."\n";
-	#30-44
+	print $list[11]."\t".join("\t",@list[14..23])."\t".join("\t",@list[32..46])."\n";
 }

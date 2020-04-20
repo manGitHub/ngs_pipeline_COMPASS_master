@@ -151,15 +151,13 @@ echo "
 Result available in <b>$location</b>.
 <br>
 <p>For IGV sessions to work in igv:<br>
-biowulf.nih.gov(/data/khanlab) is mapped as K <br>
-biowulf.nih.gov(/data/Clinomics) is mapped as V <br>
-login01 aka TGen Server(/projects/Clinomics) is mapped as Y<br><br>
+biowulf.nih.gov(/data/Compass) is mapped as Z <br><br>
 
 If you ran pipeline at another location, igv session file cannot be loaded in IGV.</p><br><br>
 
 <p>Regards,<br>
-KhanLab<br>
-Oncogenomics Section<br>
+COMPASS Program<br>
+Laboratory of Pathology<br>
 CCR NCI NIH<br>
 </p>
 </body>

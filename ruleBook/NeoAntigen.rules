@@ -39,7 +39,7 @@ rule seq2HLA:
 		"{base}/{TIME}/{sample}/HLA/seq2HLA/{sample}-ClassI.HLAgenotype4digits"
 	params:
 		rulename= "seq2HLA",
-		python  = config["version_python"],
+		python  = config["version_old_python"],
 		R	= config['version_R'],
 		bowtie	= config['bowtie'],
 		batch	= config[config['host']]["job_annovar"],

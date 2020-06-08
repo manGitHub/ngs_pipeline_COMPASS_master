@@ -25,7 +25,7 @@ rule consolidated_QC:
         params:
                 rulename        = "consolidated_QC",
                 bedtools        = config['bedtools'],
-		python		= config["version_python"],
+		python		= config["version_old_python"],
 		tool_perl       = NGS_PIPELINE+ "/scripts/addAttributes.pl",
                 batch           = config[config['host']]["job_c_QC"],
                 diagnosis       = lambda wildcards: config['Diagnosis'][wildcards.sample]

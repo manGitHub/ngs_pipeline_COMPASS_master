@@ -812,14 +812,18 @@ rule Strelka:
 		rulename = "Strelka",
 		batch    = config[config['host']]["job_strelka"],
 		config=NGS_PIPELINE + "/Tools_config/"+config["strelka_config"],
-		vcftools = config["vcftools"]
+		vcftools = config["vcftools"],
+		manta = config["manta"]
 	shell: """
 	#######################
-	module load strelka/{version}
+        module load strelka/{version}
+        module load manta/{params.manta}
         #requested biowulf for write permissions, will fix the path once thats done.
-	configureStrelkaSomaticWorkflow.py --normalBam={input[2]} --tumorBam={input[0]} --referenceFasta=/data/Compass/dev/ref/Gencode_human_release_30_GRCh37/vineela_gencode_ref_ann/GRCh37.primary_assembly.genome.sorted.fa --config={params.config} --runDir=${{LOCAL}}/strelka
-	${{LOCAL}}/strelka/runWorkflow.py -m local 	
-	module load vcftools/{params.vcftools}
+        configManta.py --normalBam {input[2]} --tumorBam {input[0]}  --referenceFasta /data/Compass/dev/ref/Gencode_human_release_30_GRCh37/vineela_gencode_ref_ann/GRCh37.primary_assembly.genome.sorted.fa --runDir ${{LOCAL}}/manta
+        ${{LOCAL}}/manta/runWorkflow.py
+        configureStrelkaSomaticWorkflow.py --normalBam={input[2]} --tumorBam={input[0]} --referenceFasta=/data/Compass/dev/ref/Gencode_human_release_30_GRCh37/vineela_gencode_ref_ann/GRCh37.primary_assembly.genome.sorted.fa --config={params.config} --indelCandidates ${{LOCAL}}/manta/results/variants/candidateSmallIndels.vcf.gz --runDir=${{LOCAL}}/strelka
+        ${{LOCAL}}/strelka/runWorkflow.py -m local 
+        module load vcftools/{params.vcftools}
 	vcftools --gzvcf ${{LOCAL}}/strelka/results/variants/somatic.snvs.vcf.gz --bed {input.interval} --out {output.snps} --recode --keep-INFO-all
 	mv -f {output.snps}.recode.vcf {output.snps}
 	vcftools --gzvcf ${{LOCAL}}/strelka/results/variants/somatic.indels.vcf.gz --bed {input.interval}  --out {output.indels} --recode --keep-INFO-all

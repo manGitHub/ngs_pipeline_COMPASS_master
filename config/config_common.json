@@ -17,7 +17,7 @@
 	"GATK"			: "3.8-1",
 	"bam2mpg"		: "1.0.1",
 	"MuTect"		: "1.1.7",
-	"strelka"		: "2.9.0",
+	"strelka"		: "2.9.10",
 	"vcftools"		: "0.1.13",
 	"platypus"		: "0.8.1",
 	"freebayes"		: "0.9.21",
@@ -45,6 +45,7 @@
 	"java8_11"		: "1.8.0_11",
 	"Actionable_mutation"	: "Actionable.v3.pl",
 	"Actionable_fusion"	: "ActionableFusion.v1.pl",
+        "manta"                 :  "1.6.0",
 	"Panel_List"		: ["clin.snv.v1", "clin.cnv.v2", "clin.snv.v2", "nbl.panel", "seqcapez.rms.v1", "nbl.somatic.panel", "panel_paed_v5_w5.1"],
 	"failed_exon_params": {
 		"wholegenome"		:{"Normal":"5","Tumor":"5"},

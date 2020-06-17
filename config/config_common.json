@@ -1,7 +1,7 @@
 {
 	"pipeline_version"	: "v4.0dev",
-	"mails"			: "-c manoj.tyagi@nih.gov -c vineela.gangalapudi@nih.gov ",
-        "mail"                  : " -c vineela.gangalapudi@nih.gov ",
+	"mail"			: "-c manoj.tyagi@nih.gov -c vineela.gangalapudi@nih.gov -c kristin.valdez@nih.gov",
+        "mails"                 : " -c vineela.gangalapudi@nih.gov ",
 	"platform"		: "Illumina",
 	"samtools"		: "0.1.19",
 	"samtools_old"		: "0.1.19",

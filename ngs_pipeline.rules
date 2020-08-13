@@ -775,7 +775,7 @@ rule MuTect:
 		R	 = config['version_R'],
 		batch    = config[config['host']]["job_mutect"],
 		vcforder = NGS_PIPELINE + "/scripts/vcfOrderCol.R",
-		mt       = "--max_alt_allele_in_normal_fraction 0.05 --max_alt_alleles_in_normal_count 4 --min_qscore 20 -rf MappingQuality -mmq 30"
+		mt       = "--min_qscore 20 -rf MappingQuality -mmq 30"
 	shell: """
 	#######################
 	module load muTect/{version}

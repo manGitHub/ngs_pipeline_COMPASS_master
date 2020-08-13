@@ -182,6 +182,8 @@ elsif($CALLER eq "STRELKA_S"){
 		chomp;
 		my @field=split(/\t/,$_);
 		my ($chr, $start, $end, $ref, $alt, $qual, $filter, $info, $format, $Normal, $Tumor) = @field;
+		##keep only PASS variants
+		if($filter !~ /PASS/) {next;}
 		print "$chr\t$start\t$end\t$ref\t$alt\t$qual\t$filter\t$info\t$sname\t";
 		my (@format) = split(":", $format);
 		my ($idx_A, $idx_C , $idx_G, $idx_T);
@@ -269,6 +271,8 @@ elsif($CALLER eq 'STRELKA_I'){
 		chomp;
 		my @field=split(/\t/,$_);
 		my ($chr, $start, $end, $ref, $alt, $qual, $filter, $info, $format, $Normal, $Tumor) = @field;
+		##keep only PASS variants
+		if($filter !~ /PASS/) {next;}
 		print "$chr\t$start\t$end\t$ref\t$alt\t$qual\t$filter\t$info\t$sname\t";
 		my (@format) = split(":", $format);
 		my ($DPindex, $TIRindex);

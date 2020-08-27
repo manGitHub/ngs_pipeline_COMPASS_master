@@ -21,6 +21,7 @@
 	"STAR_Fusion_CTAT_lib"	: "/data/Compass/Ref/hg19/IndexLP/star_fusion_1.6.0_CTAT_genome_lib/GRCh37_gencode_v19_CTAT_lib_Mar272019.plug-n-play/ctat_genome_lib_build_dir",
 	"rsem_1.3.2_gencode"	: "/data/Compass/Ref/hg19/IndexLP/rsem_1.3.2_gencode/hg19",
 	"reference"		: "/data/Compass/Ref/hg19/Gencode_human_release_30_GRCh37/hg19.fa",
+	"Strelka_ref"		: "/data/Compass/Ref/hg19/Gencode_human_release_30_GRCh37/gencode_ref_ann/GRCh37.primary_assembly.genome.sorted.fa",
 	"HLA"			: "/data/Compass/Ref/hg19/HLA/",
 	"version_R"		: "3.4",
 	"version_python"	: "3.7",

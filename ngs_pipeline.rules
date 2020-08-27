@@ -803,6 +803,7 @@ rule Strelka:
 	input:
 		lambda wildcards: somaticPairs[wildcards.Tumor],
 		ref=config["reference"],
+		strelkaRef=config["Strelka_ref"],
 		interval=lambda wildcards: config['target_intervals'][pairedCapture[wildcards.Tumor]].replace("target","targetbp")
 	output:
 		snps="{subject}/{TIME}/{Tumor}/calls/{Tumor}.strelka.snvs.raw.vcf",
@@ -819,9 +820,9 @@ rule Strelka:
         module load strelka/{version}
         module load manta/{params.manta}
         #requested biowulf for write permissions, will fix the path once thats done.
-        configManta.py --normalBam {input[2]} --tumorBam {input[0]}  --referenceFasta /data/Compass/dev/ref/Gencode_human_release_30_GRCh37/vineela_gencode_ref_ann/GRCh37.primary_assembly.genome.sorted.fa --runDir ${{LOCAL}}/manta
+        configManta.py --normalBam {input[2]} --tumorBam {input[0]}  --referenceFasta {input.strelkaRef} --runDir ${{LOCAL}}/manta
         ${{LOCAL}}/manta/runWorkflow.py
-        configureStrelkaSomaticWorkflow.py --normalBam={input[2]} --tumorBam={input[0]} --referenceFasta=/data/Compass/dev/ref/Gencode_human_release_30_GRCh37/vineela_gencode_ref_ann/GRCh37.primary_assembly.genome.sorted.fa --config={params.config} --indelCandidates ${{LOCAL}}/manta/results/variants/candidateSmallIndels.vcf.gz --runDir=${{LOCAL}}/strelka --exome
+        configureStrelkaSomaticWorkflow.py --normalBam={input[2]} --tumorBam={input[0]} --referenceFasta={input.strelkaRef} --config={params.config} --indelCandidates ${{LOCAL}}/manta/results/variants/candidateSmallIndels.vcf.gz --runDir=${{LOCAL}}/strelka --exome
         ${{LOCAL}}/strelka/runWorkflow.py -m local 
         module load vcftools/{params.vcftools}
 	vcftools --gzvcf ${{LOCAL}}/strelka/results/variants/somatic.snvs.vcf.gz --bed {input.interval} --out {output.snps} --recode --keep-INFO-all

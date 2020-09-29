@@ -33,7 +33,7 @@
 		"job_fastqc"     : "--partition=quick,norm    --time=02:00:00 --mem=19G  --cpus-per-task=10  --gres=lscratch:02",
 		"job_expressed"  : "--partition=ccr,norm --time=24:00:00 --mem=02G  --cpus-per-task=1",
 		"job_tophatPost" : "--partition=ccr,norm --time=50:00:00 --mem=100G  --cpus-per-task=2",
-		"job_bwa"        : "--partition=ccr,norm --time=20:00:00 --mem=60G  --cpus-per-task=32 ",
+		"job_bwa"        : "--partition=ccr,norm --time=20:00:00 --mem=60G  --cpus-per-task=32 --gres=lscratch:100",
 		"job_bismark"    : "--partition=ccr,norm --time=5-0:00:00 --mem=60G  --cpus-per-task=32 --gres=lscratch:200",
 		"job_cufflinks"  : "--partition=ccr,norm --time=10:00:00 --mem=50G  --cpus-per-task=30",
 		"job_featCount"  : "--partition=quick,norm --time=04:00:00 --mem=50G  --cpus-per-task=10  --gres=lscratch:100",

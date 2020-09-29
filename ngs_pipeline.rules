@@ -458,7 +458,7 @@ rule BWA:
 	THREADS=`expr ${{THREADS}} - 2`
 	
 	bwa mem -M -t ${{THREADS}} -R '@RG\\tID:{wildcards.sample}\\tSM:{wildcards.sample}\\tLB:{wildcards.sample}\\tPL:{params.platform}' {params.ref}  $R1 $R2 | samtools view -Sbh -o {wildcards.base}/{TIME}/{wildcards.sample}/{wildcards.sample}.bwa1.bam -
-        java -Xmx${{MEM}}g  -jar $PICARD_JAR SortSam I={wildcards.base}/{TIME}/{wildcards.sample}/{wildcards.sample}.bwa1.bam O={wildcards.base}/{TIME}/{wildcards.sample}/{wildcards.sample}.bwa.bam  SORT_ORDER=coordinate 
+        java -Xmx${{MEM}}g -Djava.io.tmpdir=${{LOCAL}} -jar $PICARD_JAR SortSam I={wildcards.base}/{TIME}/{wildcards.sample}/{wildcards.sample}.bwa1.bam O={wildcards.base}/{TIME}/{wildcards.sample}/{wildcards.sample}.bwa.bam  SORT_ORDER=coordinate 
 	samtools index {wildcards.base}/{TIME}/{wildcards.sample}/{wildcards.sample}.bwa.bam
         rm {wildcards.base}/{TIME}/{wildcards.sample}/{wildcards.sample}.bwa1.bam
 	#######################

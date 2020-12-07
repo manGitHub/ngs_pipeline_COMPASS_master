@@ -1,0 +1,81 @@
+if 'RNASeq' in config:
+	#The subjects in this list have at least one transcriptome library.
+	for subject in SUB_RNASEQ:
+		#All the transcriptome libraries for the subject are in this list.
+		for sample in SAM_RNASEQ[subject]:
+			TARGET_R += [subject+"/"+TIME+"/"+sample+"/fusion/arriba-fusion.txt"]
+
+rule arriba:
+  input: R=lambda wildcards: FQ[wildcards.sample]
+  output:
+    "{subject}/{TIME}/{sample}/fusion/arriba-fusion.txt"
+  version:
+    config["STAR_arriba"]
+  params:
+    rulename = "arriba",
+    batch    = config[config['host']]['job_STAR_TPM'],
+    star_gencode_ref  = config['star_2.7.6a_arriba'],
+    home     = WORK_DIR,
+    arriba   = config['arriba'],
+    samtools = config['samtools_arriba'],
+    ref      = config['reference'],
+    gtf      = config['gencode_gtf'],
+    blcklst  = config['arriba_blacklist'],
+    draw     = config['draw_fusions'],
+    cyto     = config['cytobands'],
+    prot     = config['proteinDomains'],
+    R        = config['version_R']
+  shell: """
+
+    module load STAR/{version}
+    module load arriba/{params.arriba}
+    module load samtools/{params.samtools}
+    module load R/{params.R}
+
+    cd ${{LOCAL}}/
+    if [ -d "{params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/arriba_out" ]; then rm -Rf {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/arriba_out; fi
+    mkdir -p {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/arriba_out
+
+    STAR \
+      --runThreadN $SLURM_CPUS_PER_TASK \
+      --genomeDir {params.star_gencode_ref} \
+      --readFilesIn {input.R[0]} {input.R[1]} \
+      --readFilesCommand zcat \
+      --outSAMtype BAM Unsorted \
+      --outSAMunmapped Within \
+      --outBAMcompression 0 \
+      --outFilterMultimapNmax 50 \
+      --peOverlapNbasesMin 10 \
+      --alignSplicedMateMapLminOverLmate 0.5 \
+      --alignSJstitchMismatchNmax 5 -1 5 5 \
+      --chimSegmentMin 10 \
+      --chimOutType WithinBAM HardClip \
+      --chimJunctionOverhangMin 10 \
+      --chimScoreDropMax 30 \
+      --chimScoreJunctionNonGTAG 0 \
+      --chimScoreSeparation 1 \
+      --chimSegmentReadGapMax 3 \
+      --chimMultimapNmax 50 \
+      --outFileNamePrefix {wildcards.sample}.arriba. &&
+    arriba \
+      -x {wildcards.sample}.arriba.Aligned.out.bam \
+      -o {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/arriba_out/fusions.tsv \
+      -O {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/arriba_out/fusions.discarded.tsv \
+      -a {params.ref} \
+      -g {params.gtf} \
+      -b {params.blcklst} \
+      -p {params.prot} &&
+    cp {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/arriba_out/fusions.tsv {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/fusion/arriba-fusion.txt &&
+    gzip {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/arriba_out/fusions.discarded.tsv &&
+
+    # Visualizations
+    samtools sort -o {wildcards.sample}.coordSort.arriba.Aligned.out.bam {wildcards.sample}.arriba.Aligned.out.bam
+    samtools index {wildcards.sample}.coordSort.arriba.Aligned.out.bam
+    {params.draw} \
+      --fusions={params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/arriba_out/fusions.tsv \
+      --alignments={wildcards.sample}.coordSort.arriba.Aligned.out.bam \
+      --output={params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/arriba_out/fusions.pdf \
+      --annotation={params.gtf} \
+      --cytobands={params.cyto} \
+      --proteinDomains={params.prot}
+    """

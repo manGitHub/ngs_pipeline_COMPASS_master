@@ -84,7 +84,9 @@ if 'RNASeq' in config:
 ############
 include: NGS_PIPELINE +"/ruleBook/mixcr.rules"
 include: NGS_PIPELINE +"/ruleBook/STAR.rules"
-include: NGS_PIPELINE +"/ruleBook/tophat.rules"
+#include: NGS_PIPELINE +"/ruleBook/tophat.rules"
+include: NGS_PIPELINE +"/ruleBook/arriba.rules"
+include: NGS_PIPELINE +"/ruleBook/star_seqr.rules"
 
 ############
 #       RNASeq All
@@ -174,10 +176,12 @@ rule CoveragE:
 ############
 rule Sub_Fusion:
 	input:
-		tophat="{subject}/{TIME}/{sample}/fusion/tophat-fusion.txt",
+#		tophat="{subject}/{TIME}/{sample}/fusion/tophat-fusion.txt",
 		fc="{subject}/{TIME}/{sample}/fusion/fusion-catcher.txt",
 		#defuse="{subject}/{TIME}/{sample}/fusion/defuse.filtered.txt",
 		SF="{subject}/{TIME}/{sample}/fusion/STAR-fusion.txt",
+		arriba="{subject}/{TIME}/{sample}/fusion/arriba-fusion.txt",
+		starseqr="{subject}/{TIME}/{sample}/fusion/starseqr-fusion.txt",
 		convertor = NGS_PIPELINE + "/scripts/" + config['Actionable_fusion'],
 	output:
 		"{subject}/{TIME}/{sample}/fusion/{sample}.actionable.fusion.txt"
@@ -187,7 +191,7 @@ rule Sub_Fusion:
 	shell: """
 	#######################
 	mkdir -p {wildcards.subject}/{TIME}/Actionable
-	perl {input.convertor} {wildcards.sample} {input.tophat} {input.fc} {input.SF} {wildcards.subject}/{TIME}{ACT_DIR} |awk 'NR<2{{print $0;next}}{{print $0| "sort "}}' >{output}
+	perl {input.convertor} {wildcards.sample} {input.fc} {input.SF} {input.arriba} {input.starseqr} {wildcards.subject}/{TIME}{ACT_DIR} |awk 'NR<2{{print $0;next}}{{print $0| "sort "}}' >{output}
 	#######################
 	"""
 ############

@@ -1,0 +1,45 @@
+if 'RNASeq' in config:
+	#The subjects in this list have at least one transcriptome library.
+	for subject in SUB_RNASEQ:
+		#All the transcriptome libraries for the subject are in this list.
+		for sample in SAM_RNASEQ[subject]:
+			TARGET_R += [subject+"/"+TIME+"/"+sample+"/fusion/starseqr-fusion.txt"]
+
+
+rule star_seqr:
+  input: R=lambda wildcards: FQ[wildcards.sample]
+  output:
+    "{subject}/{TIME}/{sample}/fusion/starseqr-fusion.txt"
+  version:
+    config["starseqr"]
+  params:
+    rulename = "star_seqr",
+    batch    = config[config['host']]['job_STAR_TPM'],
+    star_index = config['star_2.5.3a_starseqr'],
+    home     = WORK_DIR,
+    ref      = config['reference'],
+    gtf      = config['gencode_gtf'],
+  shell: """
+
+    module load starseqr/{version}
+
+    cd ${{LOCAL}}/
+    if [ -d "{params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/starseqr_out" ]; then rm -Rf {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/starseqr_out; fi
+    mkdir -p {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/starseqr_out
+
+		starseqr.py -1 {input.R[0]} \
+			-2 {input.R[1]} \
+			-m 1 -t $SLURM_CPUS_PER_TASK \
+			-p {wildcards.sample} \
+			-i {params.star_index} \
+			-g {params.gtf} \
+			-r {params.ref} \
+			-vv &&
+
+		cp {wildcards.sample}_STAR-SEQR/{wildcards.sample}_STAR-SEQR_breakpoints.txt \
+		{params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/fusion/starseqr-fusion.txt &&
+
+    mv {wildcards.sample}_STAR-SEQR/*breakpoints* {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/starseqr_out &&
+    mv {wildcards.sample}_STAR-SEQR/*candidates* {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/starseqr_out &&
+    mv {wildcards.sample}_STAR-SEQR/*Log* {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/starseqr_out 
+    """

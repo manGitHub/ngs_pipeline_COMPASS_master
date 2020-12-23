@@ -14,7 +14,7 @@ rule star_seqr:
     config["starseqr"]
   params:
     rulename = "star_seqr",
-    batch    = config[config['host']]['job_STAR_TPM'],
+    batch    = config[config['host']]['job_arriba'],
     star_index = config['star_2.5.3a_starseqr'],
     home     = WORK_DIR,
     ref      = config['reference'],

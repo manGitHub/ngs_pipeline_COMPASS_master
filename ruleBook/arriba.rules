@@ -13,7 +13,7 @@ rule arriba:
     config["STAR_arriba"]
   params:
     rulename = "arriba",
-    batch    = config[config['host']]['job_STAR_TPM'],
+    batch    = config[config['host']]['job_arriba'],
     star_gencode_ref  = config['star_2.7.6a_arriba'],
     home     = WORK_DIR,
     arriba   = config['arriba'],
@@ -24,7 +24,8 @@ rule arriba:
     draw     = config['draw_fusions'],
     cyto     = config['cytobands'],
     prot     = config['proteinDomains'],
-    R        = config['version_R']
+    R        = config['version_R'],
+    filter   = config['filter_arriba']
   shell: """
 
     module load STAR/{version}
@@ -65,7 +66,7 @@ rule arriba:
       -g {params.gtf} \
       -b {params.blcklst} \
       -p {params.prot} &&
-    cp {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/arriba_out/fusions.tsv {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/fusion/arriba-fusion.txt &&
+    python3 {params.filter} {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/arriba_out/fusions.tsv {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/fusion/arriba-fusion.txt &&
     gzip {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/arriba_out/fusions.discarded.tsv &&
 
     # Visualizations

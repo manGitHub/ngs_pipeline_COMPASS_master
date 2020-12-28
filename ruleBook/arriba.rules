@@ -25,7 +25,7 @@ rule arriba:
     cyto     = config['cytobands'],
     prot     = config['proteinDomains'],
     R        = config['version_R'],
-    filter   = config['filter_arriba']
+    filter   = NGS_PIPELINE + "/scripts/" + config['filter_arriba']
   shell: """
 
     module load STAR/{version}

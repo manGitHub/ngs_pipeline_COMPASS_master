@@ -10,11 +10,11 @@
 	"BowtieIndex"		: "/data/Compass/Ref/hg19/IndexLP/tophat_fusion/bowtie1/hg19",
 	"Bowtie2Index"		: "/data/Compass/Ref/hg19/IndexLP/tophat_fusion/bowtie2/hg19",
 	"Novo_index"		: "/data/Compass/Ref/hg19/Index/novoalign/chr_all_hg19.nbx",
-	"star_2.5.3a_starseqr"	: "/data/Compass/Ref/hg19/IndexLP/star_seqr_0.6.7/STAR_index_2.5.3a",
-	"star_2.7.6a_arriba"	: "/data/Compass/Ref/hg19/IndexLP/arriba_2.0.0/STAR_index_2.7.6a",
-	"star_2.7.0f_gencode"	: "/data/Compass/Ref/hg19/IndexLP/star_2.7.0f_gencode",
+	"star_2.5.3a_starseqr"	: "/data/Compass/Ref/hg19/IndexLP/star_seqr_0.6.7/STARind_2.5.3a_GTFv36",
+	"star_2.7.6a_arriba"	: "/data/Compass/Ref/hg19/IndexLP/arriba_2.0.0/STARind_2.7.6a_GTFv36",
+	"star_2.7.0f_gencode"	: "/data/Compass/Ref/hg19/IndexLP/STARind_2.7.0f_GTFv36",
 	"STAR_Fusion_CTAT_lib"	: "/data/Compass/Ref/hg19/IndexLP/star_fusion_1.6.0_CTAT_genome_lib/GRCh37_gencode_v19_CTAT_lib_Mar272019.plug-n-play/ctat_genome_lib_build_dir",
-	"rsem_1.3.2_gencode"	: "/data/Compass/Ref/hg19/IndexLP/rsem_1.3.2_gencode37_annotationv35lift37/hg19",
+	"rsem_1.3.2_gencode"	: "/data/Compass/Ref/hg19/IndexLP/rsem_1.3.2_gencode37_annotationv36lift37/hg19",
 	"arriba_blacklist"	: "/data/Compass/Ref/hg19/IndexLP/arriba_2.0.0/blacklist_hg19_hs37d5_GRCh37_v2.0.0.tsv.gz",
 	"draw_fusions"		: "/data/Compass/Ref/hg19/IndexLP/arriba_2.0.0/draw_fusions.R",
 	"cytobands"		: "/data/Compass/Ref/hg19/IndexLP/arriba_2.0.0/cytobands_hg19_hs37d5_GRCh37_v2.0.0.tsv",
@@ -129,9 +129,8 @@
 	"gene_coord"		: "/data/Compass/Ref/hg19/gene_coordinates.txt",
 	"ref_flat"		: "/data/Compass/Ref/hg19/Gencode_human_release_30_GRCh37/gencode_ref_ann/ref_flat.txt",
 	"rRNA_interval"		: "/data/Compass/Ref/hg19/Gencode_human_release_30_GRCh37/gencode_ref_ann/ribosomal_interval.list",
-	"gencode_gtf"		: "/data/Compass/Ref/hg19/Gencode_human_release_35_GRCh37/gencode_ref_ann/gencode.v35lift37.annotation.gtf",
-	"gencode_collapsed_gtf"		: "/data/Compass/Ref/hg19/Gencode_human_release_30_GRCh37/gencode_ref_ann/gencode.v30lift37.genes.gtf",
-	"gencode_transcript_gtf"	: "/data/Compass/Ref/hg19/Gencode_human_release_35_GRCh37/gencode_ref_ann/gencode.v35lift37.transcript.gtf",
+	"gencode_gtf"		: "/data/Compass/Ref/hg19/Gencode_human_release_36_GRCh37/gencode_ref_ann/gencode.v36lift37.annotation.gtf",
+	"gencode_collapsed_gtf"		: "/data/Compass/Ref/hg19/Gencode_human_release_36_GRCh37/gencode_ref_ann/gencode.v36lift37.genes.gtf",
 	"RDS"			: {
 		"UCSC"		: "/data/Compass/Ref/hg19/AnnotationRDS/annotation_UCSC_transcript.RDS"
 	}

@@ -6,7 +6,7 @@ local $SIG{__WARN__} = sub {
 	my $message =shift;
 	die $message;
 };
-my $hs      =`/bin/grep \"^$ARGV[0]\" $ARGV[1] |cut -f 21,22`;
+my $hs      =`/bin/grep \"^$ARGV[0]\" $ARGV[1] |cut -f 22,23`;
 chomp $hs;
 my @cov =split("\t", $hs);
 my $hs1  =sprintf("%.f", $cov[0]);

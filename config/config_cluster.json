@@ -10,9 +10,10 @@
 		"job_qualimap"   : "--partition=ccr,norm --time=04:00:00 --mem=19G  --cpus-per-task=16  --gres=lscratch:40",
 		"job_fusioncatch": "--partition=ccr,norm --time=24:00:00 --mem=120G --cpus-per-task=30  --gres=lscratch:500",
 		"job_STAR"       : "--partition=ccr,norm --time=15:00:00 --mem=100G  --cpus-per-task=30  --gres=lscratch:800",
+		"job_RSEM"       : "--partition=ccr,norm --time=20:00:00 --mem=30G  --cpus-per-task=4  --gres=lscratch:200"
 		"job_STAR_TPM"   : "--partition=ccr,norm --time=10:00:00 --mem=100G  --cpus-per-task=30  --gres=lscratch:400",
 		"job_PPH2"       : "--partition=ccr,norm --time=24:00:00 --mem=04G  --cpus-per-task=2   --gres=lscratch:10",
-		"job_arriba"     : "--partition=quick,norm --time=03:00:00 --mem=70G  --cpus-per-task=30  --gres=lscratch:400",
+		"job_arriba"     : "--partition=quick,norm --time=04:00:00 --mem=70G  --cpus-per-task=30  --gres=lscratch:400",
 		"job_SIFT"       : "--partition=ccr,norm --time=24:00:00 --mem=04G  --cpus-per-task=2   --gres=lscratch:10",
 		"job_tophat"     : "--partition=ccr,norm --time=90:00:00 --mem=200G  --cpus-per-task=32  --gres=lscratch:600",
 		"job_markdup"    : "--partition=ccr,norm --time=25:00:00 --mem=60G  --cpus-per-task=15  --gres=lscratch:150",

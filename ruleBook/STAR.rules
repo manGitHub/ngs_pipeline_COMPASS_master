@@ -110,7 +110,7 @@ rule RSEM:
 	params:
 		rulename = "RSEM",
 		ref      = config['rsem_1.3.2_gencode'],
-		batch    = config[config['host']]['job_STAR'],
+		batch    = config[config['host']]['job_RSEM'],
 		home     = WORK_DIR,
 	shell: """
 	

@@ -282,6 +282,7 @@ include: NGS_PIPELINE +"/ruleBook/MethlySeq.rules"
 include: NGS_PIPELINE +"/ruleBook/HotSpot_Pileup.rules"
 include: NGS_PIPELINE +"/ruleBook/mutationBurden.rules"
 include: NGS_PIPELINE +"/ruleBook/AttachAnnotationFull.rules"
+include: NGS_PIPELINE +"/ruleBook/QCI_VCF.rules"
 
 ###########################################################################
 # we have to do it this way as some samples may not have rna or tumor     #

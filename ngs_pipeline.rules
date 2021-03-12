@@ -282,6 +282,7 @@ include: NGS_PIPELINE +"/ruleBook/MethlySeq.rules"
 include: NGS_PIPELINE +"/ruleBook/HotSpot_Pileup.rules"
 include: NGS_PIPELINE +"/ruleBook/mutationBurden.rules"
 include: NGS_PIPELINE +"/ruleBook/AttachAnnotationFull.rules"
+include: NGS_PIPELINE +"/ruleBook/QCI_VCF.rules"
 
 ###########################################################################
 # we have to do it this way as some samples may not have rna or tumor     #
@@ -814,7 +815,8 @@ rule Strelka:
 		batch    = config[config['host']]["job_strelka"],
 		config=NGS_PIPELINE + "/Tools_config/"+config["strelka_config"],
 		vcftools = config["vcftools"],
-		manta = config["manta"]
+		manta = config["manta"],
+		calcVAF = NGS_PIPELINE + "/scripts/" + config["calcVAF"]
 	shell: """
 	#######################
         module load strelka/{version}
@@ -826,9 +828,10 @@ rule Strelka:
         ${{LOCAL}}/strelka/runWorkflow.py -m local 
         module load vcftools/{params.vcftools}
 	vcftools --gzvcf ${{LOCAL}}/strelka/results/variants/somatic.snvs.vcf.gz --bed {input.interval} --out {output.snps} --recode --keep-INFO-all
-	mv -f {output.snps}.recode.vcf {output.snps}
+	python3 {params.calcVAF} {output.snps}.recode.vcf {output.snps}
 	vcftools --gzvcf ${{LOCAL}}/strelka/results/variants/somatic.indels.vcf.gz --bed {input.interval}  --out {output.indels} --recode --keep-INFO-all
-	mv -f {output.indels}.recode.vcf {output.indels}
+	python3 {params.calcVAF} {output.indels}.recode.vcf {output.indels}
+	rm {output.snps}.recode.vcf {output.indels}.recode.vcf
 	NORMAL=`basename {input[2]} .bwa.final.bam`
 	sed -i "s/FORMAT\\tNORMAL\\tTUMOR/FORMAT\\t${{NORMAL}}\\t{wildcards.Tumor}/g" {output.snps}
 	sed -i "s/FORMAT\\tNORMAL\\tTUMOR/FORMAT\\t${{NORMAL}}\\t{wildcards.Tumor}/g" {output.indels}

@@ -1,5 +1,3 @@
-# vim: syntax=python tabstop=4 expandtab
-# coding: utf-8
 if 'sample_references' in config:
 	for sample in config['sample_references'].keys():
 		subject=SAMPLE_TO_SUBJECT[sample]
@@ -14,15 +12,17 @@ rule MutationalSignature:
 		tool   =NGS_PIPELINE + "/scripts/mutationSignature.R"
 	output: 
 		v1="{base}/{sample}.mutationalSignature.pdf"
-	version: config["version_R"]
+	version: config["version_R_mutSigs"]
 	params:
-		rulename = "MutationalSignature",
-		batch    = config[config['host']]["job_default"],
+        	rulename = "MutationalSignature",
+        	batch    = config[config['host']]["job_default"],
+        	rLib     = config['R_library'],
+        	mutSigs  = config['mutSigs_2020']        
 	shell: """
 	#######################
 	module load R/{version}
 	awk '{{OFS="\\t"}}{{print $1,$2,$4,$5,"{wildcards.sample}"}}' {input.File} |sed -e '1s/{wildcards.sample}/Sample/g'>{output.v1}.tmp
-	{input.tool} --input {output.v1}.tmp --sample {wildcards.sample} --output {output.v1}
+	{input.tool} --input {output.v1}.tmp --sample {wildcards.sample} --output {output.v1} --rLib {params.rLib} --mutSigs {params.mutSigs}
 	rm -rf {output.v1}.tmp
 	#######################
 	"""

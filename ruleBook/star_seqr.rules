@@ -36,7 +36,7 @@ rule star_seqr:
 			-r {params.ref} \
 			-vv &&
 
-		cp {wildcards.sample}_STAR-SEQR/{wildcards.sample}_STAR-SEQR_breakpoints.txt \
+		awk 'NR==1 {{ print }} NR != 1 && $2 != 0 {{ print }}' {wildcards.sample}_STAR-SEQR/{wildcards.sample}_STAR-SEQR_breakpoints.txt > \
 		{params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/fusion/starseqr-fusion.txt &&
 
     mv {wildcards.sample}_STAR-SEQR/*breakpoints* {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/starseqr_out &&

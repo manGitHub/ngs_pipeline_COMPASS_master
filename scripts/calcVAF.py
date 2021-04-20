@@ -8,7 +8,6 @@ import sys
 # python3 <sample>.strelka.indels.raw.vcf <sample>.strelka.indels.raw.AD.vcf
 
 fileN = sys.argv[1]
-outFile = open(sys.argv[2],'w')
 
 """ Check for snp or indel in strelka file """
 def check_if_string_in_file(file_name, string_to_search):
@@ -23,6 +22,7 @@ def check_if_string_in_file(file_name, string_to_search):
 
 """ snp strelka file """
 def vaf_snp(file_name):
+    exitFlag = False
     with open(file_name) as myfile:
         info = []
         notInfo = []
@@ -41,6 +41,10 @@ def vaf_snp(file_name):
                 chrom.append(each.strip())
 
             if not each.startswith('#'):                                        # subset table and parse ACGTs, use tier 1
+
+                # error handling correct vcf formatting
+                if each.split('\t')[8]!='DP:FDP:SDP:SUBDP:AU:CU:GU:TU':
+                    exitFlag = True
 
                 ## First Sample
                 A_1 = float(each.split('\t')[9].split(':')[4].split(',')[0])
@@ -111,11 +115,17 @@ def vaf_snp(file_name):
         info.append('##INFO=<ID=VAF_2,Number=1,Type=Float,Description="Variant Allele Frequency for Second Sample">')
         format.append('##FORMAT=<ID=AD,Number=.,Type=Integer,Description="Allelic depths for the ref and alt alleles in the order listed">')
         together = notInfo + format + info + chrom + dat                                                                         # put vcf file back together
-        for x in together:
-            outFile.write(x.strip() + '\n')
+        if exitFlag:
+            sys.exit('Error: vcf FORMAT field is not correct, should be DP:FDP:SDP:SUBDP:AU:CU:GU:TU')
+        else:
+            outFile = open(sys.argv[2],'w')
+            for x in together:
+                outFile.write(x.strip() + '\n')
+        outFile.close()
 
 """ indel strelka file """
 def vaf_indel(file_name):
+    exitFlag = False
     with open(file_name) as myfile:
         info = []
         notInfo = []
@@ -133,6 +143,10 @@ def vaf_indel(file_name):
             if each.startswith('#CHROM'):                                       # pull out table header
                 chrom.append(each.strip())
             if not each.startswith('#'):                                        # subset table and parse TAR and TIR, use tier 1
+
+                # error handling correct vcf formatting
+                if each.split('\t')[8]!='DP:DP2:TAR:TIR:TOR:DP50:FDP50:SUBDP50:BCN50':
+                    exitFlag = True
 
                 # First sample
                 REF_1 = float(each.split('\t')[9].split(':')[2].split(',')[0])   # REF counts (TAR)
@@ -161,9 +175,13 @@ def vaf_indel(file_name):
         info.append('##INFO=<ID=VAF_2,Number=1,Type=Float,Description="Variant Allele Frequency for Second Sample">')   # add info tag vaf to header
         format.append('##FORMAT=<ID=AD,Number=.,Type=Integer,Description="Allelic depths for the ref and alt alleles in the order listed">')
         together = notInfo + format + info + chrom + dat                                                     # put vcf file back together
-        for x in together:
-            outFile.write(x.strip() + '\n')
-
+        if exitFlag:
+            sys.exit('Error: vcf FORMAT field is not correct, should be DP:DP2:TAR:TIR:TOR:DP50:FDP50:SUBDP50:BCN50')
+        else:
+            outFile = open(sys.argv[2],'w')
+            for x in together:
+                outFile.write(x.strip() + '\n')
+        outFile.close()
 
 """ Check type of file, run appropriate function """
 if check_if_string_in_file(fileN,'##content=strelka somatic snv calls'):

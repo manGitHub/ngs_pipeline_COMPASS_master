@@ -32,14 +32,16 @@ rule QCI_VCF:
 	# mutect snps
 	vcf-subset -u -c {wildcards.sample} {params.home}/{input.mutect_snp} > {wildcards.sample}.mutect.snps.tumor.vcf &&
 	vcf-subset -u -c {params.normal} {params.home}/{input.mutect_snp} > {params.normal}.mutect.snps.normal.vcf &&
-	# remove GT from mutect normal
+	# remove GT from mutect normal, python script will fail if FORMAT fields do not start with GT
 	python3 {params.mutect_GT} {params.normal}.mutect.snps.normal.vcf {params.normal}.mutect.snps.normal_noGT.vcf &&
 	# remove header from strelka indel vcfs
 	sed -i '/^#/d' {wildcards.sample}.strelka.indels.tumor.vcf &&
 	sed -i '/^#/d' {params.normal}.strelka.indels.normal.vcf &&
-	# combine 
-	cat {wildcards.sample}.mutect.snps.tumor.vcf {wildcards.sample}.strelka.indels.tumor.vcf > {params.qci_output}/{wildcards.sample}.tumor.vcf
-	cat {params.normal}.mutect.snps.normal_noGT.vcf {params.normal}.strelka.indels.normal.vcf > {params.qci_output}/{params.normal}.normal.vcf
-	touch {params.home}/{output.qci_done}
+	# combine
+	if [ -f {params.normal}.mutect.snps.normal_noGT.vcf ]; then
+		cat {wildcards.sample}.mutect.snps.tumor.vcf {wildcards.sample}.strelka.indels.tumor.vcf > {params.qci_output}/{wildcards.sample}.tumor.vcf
+		cat {params.normal}.mutect.snps.normal_noGT.vcf {params.normal}.strelka.indels.normal.vcf > {params.qci_output}/{params.normal}.normal.vcf
+		touch {params.home}/{output.qci_done}
+	fi
 	#################
 	"""

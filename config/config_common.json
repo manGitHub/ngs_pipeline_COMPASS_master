@@ -1,6 +1,6 @@
 {
 	"pipeline_version"	: "v4.0dev",
-	"mail"			: "-c manoj.tyagi@nih.gov -c kristin.valdez@nih.gov",
+	"mail"			: "-c manoj.tyagi@nih.gov -c kristin.valdez@nih.gov -c simran.chhabria@nih.gov",
         "mails"                 : " -c kristin.valdez@nih.gov ",
 	"platform"		: "Illumina",
 	"samtools"		: "0.1.19",

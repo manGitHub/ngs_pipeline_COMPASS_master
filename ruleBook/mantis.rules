@@ -1,0 +1,29 @@
+# coding: utf-8
+
+# calculate MSI score with MANTIS
+
+for sample in config['sample_references'].keys():
+        subject=SAMPLE_TO_SUBJECT[sample]
+        if config['sample_captures'][sample] in config['capture_list_for_mutationBurden_calc']:
+            TARGET     +=[subject+"/"+TIME+"/"+sample+"/qc/"+sample+".MSI.mantis.txt"]
+
+
+rule mantis:
+	input:
+		lambda wildcards: somaticPairs[wildcards.sample],
+		bed=config['mantis_bed'],
+		ref=config["reference"],
+	output:
+		txt="{subject}/{TIME}/{sample}/qc/{base}.MSI.mantis.txt"
+	version:
+		config["mantis"]
+	params:
+		rulename	= "mantis",
+		batch		= config[config['host']]["job_default"],
+	shell:"""
+	#######################
+	module load mantis/{version}
+	mantis.py --bedfile {input.bed} --genome {input.ref} -n {input[2]} -t {input[0]} -mrq 20.0 -mlq 25.0 -mlc 20 -mrr 1 -o {output.txt}
+	#######################
+	"""
+		

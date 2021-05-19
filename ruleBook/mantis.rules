@@ -24,6 +24,8 @@ rule mantis:
 	#######################
 	module load mantis/{version}
 	mantis.py --bedfile {input.bed} --genome {input.ref} -n {input[2]} -t {input[0]} -mrq 20.0 -mlq 25.0 -mlc 20 -mrr 1 -o {output.txt}
+	rm {wildcards.subject}/{wildcards.TIME}/{wildcards.sample}/qc/{wildcards.base}.MSI.mantis.kmer_counts.txt
+	rm {wildcards.subject}/{wildcards.TIME}/{wildcards.sample}/qc/{wildcards.base}.MSI.mantis.kmer_counts_filtered.txt
 	#######################
 	"""
 		

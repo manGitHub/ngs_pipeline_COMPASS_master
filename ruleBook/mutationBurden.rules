@@ -1,4 +1,3 @@
-# vim: syntax=python tabstop=4 expandtab
 # coding: utf-8
 
 
@@ -12,12 +11,13 @@ for sample in config['sample_references'].keys():
             TARGET     +=[subject+"/"+TIME+"/"+sample+"/qc/"+sample+".MuTect.mutationburden.txt"]
             TARGET     +=[subject+"/"+TIME+"/"+sample+"/qc/"+sample+".strelka.snvs.mutationburden.txt"]
             TARGET     +=[subject+"/"+TIME+"/"+sample+"/qc/"+sample+".strelka.indels.mutationburden.txt"]
+            TARGET     +=[subject+"/"+TIME+"/"+sample+"/qc/"+sample+".combined.mutationburden.txt"]
 
 rule MutationBurden:
         input:
                 txt="{subject}/{TIME}/{sample}/calls/{base}.annotatedFull.txt",
                 interval=lambda wildcards: config['target_intervals'][capture_kit[wildcards.sample]].replace("target.hg19.merged", "targetbp.hg19.actualmerged"),
-                mutationburden = NGS_PIPELINE + "/scripts/mutationBurden.pl"
+                mutationburden = NGS_PIPELINE + "/scripts/mutationBurden.py"
         output:
                 txt="{subject}/{TIME}/{sample}/qc/{base}.mutationburden.txt"
         version: "1.0"
@@ -29,9 +29,24 @@ rule MutationBurden:
                 vaf         = lambda wildcards: config['high_conf_somatic_threshold'][capture_kit[wildcards.sample]]['VAF'],
         shell: """
         #######################
-        perl {input.mutationburden} {input.txt} {input.interval} {params.tumor_cov} {params.normal_cov} {params.vaf} > {output.txt} 
+        python3 {input.mutationburden} {input.txt} {input.interval} {params.tumor_cov} {params.normal_cov} {params.vaf} > {output.txt} 
         #######################
         """
 
-
+rule TMB_combined:
+        input:
+                mutect="{subject}/{TIME}/{sample}/qc/{sample}.MuTect.mutationburden.txt",
+                strelka="{subject}/{TIME}/{sample}/qc/{sample}.strelka.indels.mutationburden.txt"
+        output:
+                txt="{subject}/{TIME}/{sample}/qc/{sample}.combined.mutationburden.txt"
+	version: "1.0"
+	params:
+		rulename 	= "TMB_combined",
+		batch 		= config[config['host']]["job_addbackann"], 
+		script		= NGS_PIPELINE + "/scripts/combineTMB.py"
+	shell: """
+	#######################
+	python3 {params.script} {input.mutect} {input.strelka} > {output.txt}
+	#######################
+	"""
 

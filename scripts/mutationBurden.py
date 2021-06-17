@@ -26,7 +26,7 @@ with open(intervals) as f:
 f.close()
 
 # filter and count variants
-with open(ann_var) as f:
+with open(ann_var,encoding='utf-8',errors='ignore') as f:
     annvar = f.readlines()
     annvar = annvar[1:] # remove header
     count = 0
@@ -44,3 +44,4 @@ print('Mutation burden per megabase\t' + '{:.3f}'.format((float(nonsyn)/float(to
 print('All somatic calls:')
 print('Mutation burden\t' + str(count))
 print('Mutation burden per megabase\t' + '{:.3f}'.format((float(count)/float(total_bp))*1000000)+'\n')
+f.close()

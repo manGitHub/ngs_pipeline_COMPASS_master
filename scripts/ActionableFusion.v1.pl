@@ -15,8 +15,8 @@ my $library        = $ARGV[0];
 my $fusioncatcher  = $ARGV[1];
 my $star_fusion	   = $ARGV[2];
 my $arriba         = $ARGV[3];
-my $starseqr       = $ARGV[4];
-my $destination    = $ARGV[5];
+#my $starseqr       = $ARGV[4]; ## removed July 2021
+my $destination    = $ARGV[4];
 print "#LeftGene\tRightGene\tChr_Left\tPosition\tChr_Right\tPosition\tSample\tTool\tSpanReadCount\n";
 ###########################################################
 # Comment Defuse file parsing 5/11/2018
@@ -132,22 +132,23 @@ close AR_OUT;
 
 
 #############################################################
-unless (open(SQ, "$starseqr")){
-        print STDERR "Can not open the file $starseqr\n";
-        exit;
-}
-unless (open(SQ_OUT, ">$destination/$library.starseqr-fusion.txt")){
-        print STDERR "Can not open the file $destination/$library.starseqr-fusion.txt\n";
-        die $!;
-}
-while(<SQ>){
-        chomp;
-        my @local =split("\t", $_);
-        if($_ =~ /NAME/){print SQ_OUT "$_\n"; next}
-        my @left  = split(":", $local[6]);
-        my @right = split(":", $local[7]);
-        print "$local[8]\t$local[9]\t$left[0]\t$left[1]\t$right[0]\t$right[1]\t$library\tSTAR-SEQR\t$local[1]\n";
-        print SQ_OUT "$_\n";
-}
-close SQ;
-close SQ_OUT;
+#unless (open(SQ, "$starseqr")){
+#        print STDERR "Can not open the file $starseqr\n";
+#        exit;
+#}
+#unless (open(SQ_OUT, ">$destination/$library.starseqr-fusion.txt")){
+#        print STDERR "Can not open the file $destination/$library.starseqr-fusion.txt\n";
+#        die $!;
+#}
+#while(<SQ>){
+#        chomp;
+
+#       my @local =split("\t", $_);
+#        if($_ =~ /NAME/){print SQ_OUT "$_\n"; next}
+#        my @left  = split(":", $local[6]);
+#        my @right = split(":", $local[7]);
+#        print "$local[8]\t$local[9]\t$left[0]\t$left[1]\t$right[0]\t$right[1]\t$library\tSTAR-SEQR\t$local[1]\n";
+#        print SQ_OUT "$_\n";
+#}
+#close SQ;
+#close SQ_OUT;

@@ -337,24 +337,31 @@ rule Compass_Pipeline:
 		rulename = "Final",
 		batch    = config[config['host']]["job_default"],
 		group    = config["group"],
-		mail 	 = NGS_PIPELINE + "/scripts/tsv2html.final.sh",
+		#mail 	 = NGS_PIPELINE + "/scripts/tsv2html.final.sh",
+		mail    = NGS_PIPELINE + "/scripts/transpose_csv.py",
 		email    = config["mail"],
 		host     = config["host"],
-		subs     = PATIENTS
+		subs     = PATIENTS,
+		names 	 = SUBJECT_TO_SAMPLE[PATIENTS[0]]
 	shell: """
 	#######################
 	rm -rf ngs_pipeline_{SAMPLESHEET}_{NOW}.rnaseq.done
 	find {PATIENTS} log -group $USER -exec chgrp -f {params.group} {{}} \;
 	find {PATIENTS} log \( -type f -user $USER -exec chmod g+rw {{}} \; \) , \( -type d -user $USER -exec chmod g+rwx {{}} \; \)
 	export LC_ALL=C
-	
+
 	for sub in {params.subs}
         do
                 touch {WORK_DIR}/${{sub}}/{TIME}/successful.txt
 		chmod g+rw {WORK_DIR}/${{sub}}/{TIME}/successful.txt 	
 		chgrp {params.group} {WORK_DIR}/${{sub}}/{TIME}/successful.txt
         done
-	ssh {params.host} "{params.mail} --location {WORK_DIR} --host {params.host} --head --version {version} {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv |mutt -e \\\"my_hdr Content-Type: text/html\\\" -s 'Compass ngs-pipeline Status' `whoami`@mail.nih.gov {params.email}"
+	if [ -f {WORK_DIR}/{params.subs}/{TIME}/qc/*.consolidated_QC.txt ]; then
+		ssh {params.host} "python3 {params.mail} {WORK_DIR} {params.host} {version} {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv |mutt -s 'Compass ngs-pipeline Status: {params.names}' `whoami`@mail.nih.gov {params.email} -a {WORK_DIR}/{params.subs}/{TIME}/qc/*.consolidated_QC.txt {WORK_DIR}/{params.subs}/{TIME}/*/qc/*.combined.mutationburden.txt {WORK_DIR}/{params.subs}/{TIME}/*/qc/*.MSI.mantis.txt.status"
+	else
+		ssh {params.host} "python3 {params.mail} {WORK_DIR} {params.host} {version} {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv |mutt -s 'Compass ngs-pipeline Status: {params.names}' `whoami`@mail.nih.gov {params.email}"
+	fi
+	#ssh {params.host} "{params.mail} --location {WORK_DIR} --host {params.host} --head --version {version} {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv |mutt -e \\\"my_hdr Content-Type: text/html\\\" -s 'Compass ngs-pipeline Status: {SAMPLES}' `whoami`@mail.nih.gov {params.email} -a {WORK_DIR}/{params.subs}/{TIME}/qc/*.consolidated_QC.txt"
 	rm -rf {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv
 	#######################
 	"""

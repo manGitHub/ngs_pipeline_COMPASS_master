@@ -15,7 +15,7 @@ rule QCI_VCF:
 		qci_done	= "{base}/{TIME}/{sample}/calls/{sample}.qci_vcf.done",
 	params:
 		rulename	= "QCI_VCF",
-		qci_output	= "/data/Compass/Analysis/ProcessedResults_NexSeq/ExomeRNA_Results/QCI_VCFfiles",
+		qci_output	= WORK_DIR + "/QCI_VCFfiles",
 		vcftools	= config["vcftools"],
 		normal   	= lambda wildcards: config['sample_references'][wildcards.sample][0],
 		batch    	= config[config['host']]["job_VEP"],
@@ -23,6 +23,7 @@ rule QCI_VCF:
 		home     	= WORK_DIR
 	shell: """
 	#################
+	if [ ! -d "{params.qci_output}" ]; then mkdir {params.qci_output}; fi
 	module load vcftools/{params.vcftools}
 	cd ${{LOCAL}}/
 	# separate normal and tumor

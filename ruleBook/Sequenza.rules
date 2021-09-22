@@ -1,4 +1,3 @@
-# vim: syntax=python tabstop=4 expandtab
 # coding: utf-8
 SequenzaPairs ={}
 if 'sample_references' in config:
@@ -6,72 +5,44 @@ if 'sample_references' in config:
 		for Tumor in config['sample_references']:
 			for Normal in config['sample_references'][Tumor]:
 				if config['sample_captures'][Tumor] not in config['Panel_List']:
-					SequenzaPairs[Tumor] = ["{subject}/{TIME}/{sample}/{sample}.mpileup.gz".format(TIME=TIME, subject=SAMPLE_TO_SUBJECT[Normal], sample=Normal), "{subject}/{TIME}/{sample}/{sample}.mpileup.gz".format(TIME=TIME, subject=SAMPLE_TO_SUBJECT[Tumor], sample=Tumor) ]
+					SequenzaPairs[Tumor] = ["{subject}/{TIME}/{sample}/{sample}.bwa.final.bam".format(TIME=TIME, subject=SAMPLE_TO_SUBJECT[Normal], sample=Normal), "{subject}/{TIME}/{sample}/{sample}.bwa.final.bam".format(TIME=TIME, subject=SAMPLE_TO_SUBJECT[Tumor], sample=Tumor) ]
 	for sample in config['sample_references'].keys():
 		subject=SAMPLE_TO_SUBJECT[sample]
 		if config['sample_captures'][sample] not in config['Panel_List']:
-			TARGET +=[subject+"/"+TIME+"/"+sample+"/sequenza/"+sample+"/"+sample+"_alternative_fit.pdf"]	
+			TARGET +=[subject+"/"+TIME+"/"+sample+"/sequenza/"+sample+"/"+sample+"_segments.txt"]	
 			TARGET +=[subject+"/"+TIME+"/"+sample+"/sequenza/"+sample+".txt"]
 
 ############
-#       GenotypeFile
+#       Sequenza
 ############
-# Using Older version of samtools for this purpose
-rule PILE4SEQ:
-	input:
-		bam="{base}/{TIME}/{sample}/{sample}.bwa.final.bam",
-		ref=config["reference"],
-		genome=config["reference"].replace(".fa",".genome"),
-		interval= lambda wildcards: config['target_intervals'][config['sample_captures'][wildcards.sample]],
-		seq=NGS_PIPELINE+ "/scripts/sequenza-utils.py"
-	output: temp("{base}/{TIME}/{sample}/{sample}.mpileup.gz")
-	version: config["samtools_old"]
-	params:
-		rulename  = "PILE4SEQ",
-		batch     = config[config['host']]["job_Sequenza"],
-	shell: """
-	#######################
-	module load bedtools/2.25.0
-	slopBed -i {input.interval} -g {input.genome} -b 200 |mergeBed -i - >${{LOCAL}}/Region.bed	
-	module load samtools/{version}
-	samtools mpileup -Q 20 -q 30 -L ${{LOCAL}}/Region.bed  -f {input.ref} {input.bam}| gzip > {output}
-	#######################
-	"""
+# Rscript outputs many files into output directory
 rule Sequenza:
 	input:
 		files=lambda wildcards: SequenzaPairs[wildcards.Tumor],
-		seq=NGS_PIPELINE+ "/scripts/sequenza-utils.py",
 		gc_ref=config["annovar_data"]+config["gc50Base"],
 		RCode=NGS_PIPELINE+ "/scripts/run_sequenza_pipeline.R",
+		ref=config["reference"]
 	output:
-		"{subject}/{TIME}/{Tumor}/sequenza/{Tumor}/{Tumor}_CN_bars.pdf",
-		"{subject}/{TIME}/{Tumor}/sequenza/{Tumor}/{Tumor}_CP_contours.pdf",
-		"{subject}/{TIME}/{Tumor}/sequenza/{Tumor}/{Tumor}_alternative_fit.pdf",
-		"{subject}/{TIME}/{Tumor}/sequenza/{Tumor}/{Tumor}_alternative_solutions.txt",
-		"{subject}/{TIME}/{Tumor}/sequenza/{Tumor}/{Tumor}_chromosome_view.pdf",
-		"{subject}/{TIME}/{Tumor}/sequenza/{Tumor}/{Tumor}_confints_CP.txt",
-		"{subject}/{TIME}/{Tumor}/sequenza/{Tumor}/{Tumor}_genome_view.pdf",
-		"{subject}/{TIME}/{Tumor}/sequenza/{Tumor}/{Tumor}_model_fit.pdf",
-		"{subject}/{TIME}/{Tumor}/sequenza/{Tumor}/{Tumor}_mutations.txt",
-		"{subject}/{TIME}/{Tumor}/sequenza/{Tumor}/{Tumor}_segments.txt",
-		"{subject}/{TIME}/{Tumor}/sequenza/{Tumor}/{Tumor}_sequenza_cp_table.RData",
-		"{subject}/{TIME}/{Tumor}/sequenza/{Tumor}/{Tumor}_sequenza_extract.RData",
-		"{subject}/{TIME}/{Tumor}/sequenza/{Tumor}/{Tumor}_sequenza_log.txt",
-		all=temp("{subject}/{TIME}/{Tumor}/sequenza/{Tumor}.seqz.gz"),
-		bin=temp("{subject}/{TIME}/{Tumor}/sequenza/{Tumor}.seqz_small.gz")
-	version: config['pypy']
+		"{subject}/{TIME}/{Tumor}/sequenza/{Tumor}/{Tumor}_segments.txt"
+	version: config['sequenza-utils']
 	params:
 		rulename = "Sequenza",
 		R	 = config["version_R"],
-		batch    = config[config['host']]['job_Sequenza']
+		samtools    = config['samtools_new'],
+		batch    = config[config['host']]['job_Sequenza'],
+		home     = WORK_DIR,
+		all      = "{Tumor}.seqz.gz",
+		bin      = "{Tumor}.seqz_small.gz"
 	shell: """
 	#######################
-	module load pypy/{version}
-	pypy {input.seq} pileup2seqz -gc {input.gc_ref} -n {input.files[0]} -t {input.files[1]} |gzip >{output.all}
-	pypy {input.seq} seqz-binning -w 50 -s {output.all} | gzip > {output.bin}
+	module load sequenza-utils/{version}
+	module load samtools/{params.samtools}
+	sequenza-utils bam2seqz -gc {input.gc_ref} -n {input.files[0]} -t {input.files[1]} --fasta {input.ref} -o ${{LOCAL}}/{params.all}
+	sequenza-utils seqz_binning -w 50 -s ${{LOCAL}}/{params.all} -o ${{LOCAL}}/{params.bin}
 	module load R/{params.R}
-	cd {wildcards.subject}/{wildcards.TIME}/{wildcards.Tumor}/sequenza/
+	cd ${{LOCAL}}
 	{input.RCode} --sample {wildcards.Tumor}
+	cp -r ${{LOCAL}}/{wildcards.Tumor} {params.home}/{wildcards.subject}/{wildcards.TIME}/{wildcards.Tumor}/sequenza/
 	#######################
 	"""
 

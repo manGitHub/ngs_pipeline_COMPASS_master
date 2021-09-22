@@ -512,7 +512,7 @@ rule GENOTYPING:
 		vcf="{base}/{TIME}/{sample}/calls/{sample}.{aligner}.samtools.vcf",
 		gt= "{base}/{TIME}/{sample}/qc/{sample}.{aligner}.gt",
 		loh="{base}/{TIME}/{sample}/qc/{sample}.{aligner}.loh"
-	version: config["samtools_old"]
+	version: config["samtools"]
 	params:
 		rulename  = "GENOTYPING",
 		batch     = config[config['host']]["job_genotype"],

@@ -93,7 +93,7 @@ if os.stat(final_temp).st_size != 0:
              #Annotation of the genes
              temp_array = []
              OutputFile = open(sys.argv[10], 'w')
-             OutputFile.write('#chromosome\tstart.pos\tend.pos\tGene\tBf\tN.BAF\tsd.BAF\tdepth.ratio\tN.ratio\tsd.ratio\tCNt\tA\tB\tLPP\tgene\tSource;Source\t#Lists\n')
+             OutputFile.write('#chromosome\tstart.pos\tend.pos\tGene\tBf\tN.BAF\tsd.BAF\tdepth.ratio\tN.ratio\tsd.ratio\tCNt\tA\tB\tLPP\tgene_annotation\tSource;Source\t#Lists\n')
 
              with open(final_temp, 'r') as temp1_read:
              #next(temp1_read)

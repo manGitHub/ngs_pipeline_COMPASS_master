@@ -23,11 +23,11 @@ if 'RNASeq' in config:
 				SUB_RNASEQ.add(subject)
 
 	for subject in SUB_RNASEQ:
-		RNA_QC_ALL +=[subject+"/"+TIME+"/qc/"+subject+".RnaSeqQC.txt"]
+		#RNA_QC_ALL +=[subject+"/"+TIME+"/qc/"+subject+".RnaSeqQC.txt"]
 		TARGET_R   +=[subject+"/"+TIME+"/"+subject+"/db/"+subject+".rnaseq"]
 		TARGET_R   +=[subject+"/"+TIME+ACT_DIR+subject+".fusion.actionable.txt"]
 		TARGET_R   +=[subject+"/"+TIME+ACT_DIR+subject+".rnaseq.actionable.txt"]
-		TARGET_R   +=[subject+"/"+TIME+"/qc/"+subject+".RnaSeqQC.txt"]
+                #TARGET_R   +=[subject+"/"+TIME+"/qc/"+subject+".RnaSeqQC.txt"]
 		TARGET_R   +=[subject+"/"+TIME+"/qc/"+subject+".transcriptCoverage.png"]
 		for sample in SAM_RNASEQ[subject]:
 			TARGET_R += [subject+"/"+TIME+"/"+sample+"/"+sample+".star.final.bam"]
@@ -42,8 +42,9 @@ if 'RNASeq' in config:
 			TARGET_R += [subject+"/"+TIME+"/"+sample+"/qc/"+sample+".star.flagstat.txt"]
 			TARGET_R += [subject+"/"+TIME+"/"+sample+"/qc/"+sample+".star.hotspot.depth"]
 			TARGET_R += [subject+"/"+TIME+"/"+sample+"/qc/"+sample+".RnaSeqMetrics.txt"]
-			TARGET_R += [subject+"/"+TIME+"/"+sample+"/qc/"+sample+".RnaSeqMetrics.pdf"]
-			TARGET_R += [subject+"/"+TIME+"/"+sample+"/qc/"+sample+".RnaSeqQC.txt"]
+			#TARGET_R += [subject+"/"+TIME+"/"+sample+"/qc/"+sample+".RnaSeqMetrics.pdf"]
+			#TARGET_R += [subject+"/"+TIME+"/"+sample+"/qc/"+sample+".RnaSeqQC.txt"]
+                        
 			TARGET_R += [subject+"/"+TIME+"/"+sample+"/qc/"+"rnaseqc/"+"report.html"]
 			TARGET_R += [subject+"/"+TIME+"/"+sample+"/qc/"+sample+".star.gt"]
 			TARGET_R += [subject+"/"+TIME+"/"+sample+"/fusion/"+sample+".actionable.fusion.txt"]
@@ -59,7 +60,7 @@ if 'RNASeq' in config:
 			#	TARGET_R += [subject+"/"+TIME+"/"+sample+"/TPM_"+gtf+"/"+sample+".exon.TPM.txt"]
 		TARGET_R  += ["{subject}/{TIME}/{sample}/calls/{sample}.HC_RNASeq.raw.vcf".format(TIME=TIME, subject=SUB2RNA[s], sample=s) for s in SAM_RNASEQ[subject]]
 		SUB_FUSION[subject] = ["{subject}/{TIME}/{sample}/fusion/{sample}.actionable.fusion.txt".format(TIME=TIME, subject=SUB2RNA[s], sample=s) for s in SAM_RNASEQ[subject]]
-		SUB_QC[subject]     = ["{subject}/{TIME}/{sample}/qc/{sample}.RnaSeqQC.txt".format(TIME=TIME, subject=SUB2RNA[s], sample=s) for s in SAM_RNASEQ[subject]]
+		SUB_QC[subject]     = ["{subject}/{TIME}/{sample}/qc/{sample}.RnaSeqMetrics.txt".format(TIME=TIME, subject=SUB2RNA[s], sample=s) for s in SAM_RNASEQ[subject]]
 		if subject in SUBJECT_VCFS:
 			SUBJECT_VCFS[subject] += ["{subject}/{TIME}/{sample}/calls/{sample}.HC_RNASeq.snpEff.txt".format(TIME=TIME, subject=SUB2RNA[s], sample=s) for s in SAM_RNASEQ[subject]]
 		else:

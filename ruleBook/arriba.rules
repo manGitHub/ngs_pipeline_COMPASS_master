@@ -1,9 +1,11 @@
+# coding: utf-8
 if 'RNASeq' in config:
 	#The subjects in this list have at least one transcriptome library.
 	for subject in SUB_RNASEQ:
 		#All the transcriptome libraries for the subject are in this list.
 		for sample in SAM_RNASEQ[subject]:
 			TARGET_R += [subject+"/"+TIME+"/"+sample+"/fusion/arriba-fusion.txt"]
+			TARGET_R += [subject+"/"+TIME+"/"+sample+"/fusion/arriba_QCI.done"]
 
 rule arriba:
   input: R=lambda wildcards: FQ[wildcards.sample]
@@ -27,7 +29,7 @@ rule arriba:
     R        = config['version_R'],
     filter   = NGS_PIPELINE + "/scripts/" + config['filter_arriba']
   shell: """
-
+    ######################################
     module load STAR/{version}
     module load arriba/{params.arriba}
     module load samtools/{params.samtools}
@@ -79,4 +81,27 @@ rule arriba:
       --annotation={params.gtf} \
       --cytobands={params.cyto} \
       --proteinDomains={params.prot}
+    ######################################
+    """
+
+
+rule arriba_QCI:
+  input:
+    "{subject}/{TIME}/{sample}/fusion/arriba-fusion.txt"
+  output:
+    "{subject}/{TIME}/{sample}/fusion/arriba_QCI.done"
+  params:
+    rulename = "arriba_QCI",
+    batch    = config[config['host']]['job_default'],
+    qci_output      = WORK_DIR + "/QCI_VCFfiles",
+    QCI      = NGS_PIPELINE + "/scripts/" + config['arriba_QCI'],
+    QCIheader = config['QCI_fusionHeader'],
+    genes    = config['QCI_arribaGenes'],
+    home     = WORK_DIR
+  shell: """
+    ######################################
+    if [ ! -d "{params.qci_output}" ]; then mkdir {params.qci_output}; fi
+    python3 {params.QCI} {params.QCIheader} {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/fusion/arriba-fusion.txt {params.genes} {params.qci_output}/{wildcards.sample}.arriba.csv {params.qci_output}/{wildcards.sample}.arriba.count
+    touch {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/fusion/arriba_QCI.done
+    ######################################
     """

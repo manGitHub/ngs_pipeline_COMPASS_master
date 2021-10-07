@@ -74,9 +74,11 @@ for subject,samples in config['subject'].items():
 #make dictionary containing fastq file locations.
 # Die if a library is ran twice or more.
 FQ={}
+fcid = []
 for sample in config['library'].keys():
 	for fq in config['library'][sample]:
 		if len(config['library'][sample]) == 1:
+			fcid.append(fq)
 			if os.path.isfile(DATA_DIR+fq+"/"+fq+"_R1.fastq.gz"):
 				FQ[sample] =[DATA_DIR+fq+"/"+fq+"_R1.fastq.gz", DATA_DIR+fq+"/"+fq+"_R2.fastq.gz"]
 			elif os.path.isfile(DATA_DIR+"Sample_"+fq+"/Sample_"+fq+"_R1.fastq.gz"):
@@ -326,6 +328,22 @@ onsuccess:
 	shell("find .snakemake/ ! -readable -prune -group $USER -exec chgrp -f {GROUP} {{}} \;")
 	print("Workflow finished, no error")
 ###########################################################################
+# determine sample type for email attachments
+tps = [x for x in config['sample_type'].items()]
+stps = [x[1] for x in tps]
+rna_name = ''
+if all(x in stps for x in ['RNAseq','Tumor']):
+	samp_type = 'both'
+ 	rna_name = [x for x in config['RNASeq'].values()][0]
+elif 'RNAseq' in stps:
+	samp_type = 'RNAseq'
+else:
+	samp_type = 'Tumor'
+# format samp_fcid
+fcid = ' | '.join(fcid)
+
+###########################################################################
+# metrics file is renamed to sample.metrics.tsv by copying and deleting
 rule Compass_Pipeline:
 	input:
 		TARGET,
@@ -337,12 +355,12 @@ rule Compass_Pipeline:
 		rulename = "Final",
 		batch    = config[config['host']]["job_default"],
 		group    = config["group"],
-		#mail 	 = NGS_PIPELINE + "/scripts/tsv2html.final.sh",
 		mail    = NGS_PIPELINE + "/scripts/transpose_csv.py",
 		email    = config["mail"],
 		host     = config["host"],
 		subs     = PATIENTS,
-		names 	 = SUBJECT_TO_SAMPLE[PATIENTS[0]]
+		names 	 = fcid,
+		type	 = samp_type
 	shell: """
 	#######################
 	rm -rf ngs_pipeline_{SAMPLESHEET}_{NOW}.rnaseq.done
@@ -356,12 +374,17 @@ rule Compass_Pipeline:
 		chmod g+rw {WORK_DIR}/${{sub}}/{TIME}/successful.txt 	
 		chgrp {params.group} {WORK_DIR}/${{sub}}/{TIME}/successful.txt
         done
-	if [ -f {WORK_DIR}/{params.subs}/{TIME}/qc/*.consolidated_QC.txt ]; then
+	if [ {params.type} == 'RNAseq' ]; then
+		cp {WORK_DIR}/{params.subs}/{TIME}/{sample}/qc/rnaseqc/metrics.tsv {WORK_DIR}/{params.subs}/{TIME}/{sample}/qc/rnaseqc/{sample}.metrics.tsv
+		ssh {params.host} "python3 {params.mail} {WORK_DIR} {params.host} {version} {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv {WORK_DIR}/QCI_VCFfiles/{sample}.arriba.count |mutt -s 'Compass ngs-pipeline Status: {params.names}' `whoami`@mail.nih.gov {params.email} -a {WORK_DIR}/{params.subs}/{TIME}/{sample}/qc/rnaseqc/{sample}.metrics.tsv"
+		rm {WORK_DIR}/{params.subs}/{TIME}/{sample}/qc/rnaseqc/{sample}.metrics.tsv
+	elif [ {params.type} == 'Tumor' ]; then 
 		ssh {params.host} "python3 {params.mail} {WORK_DIR} {params.host} {version} {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv |mutt -s 'Compass ngs-pipeline Status: {params.names}' `whoami`@mail.nih.gov {params.email} -a {WORK_DIR}/{params.subs}/{TIME}/qc/*.consolidated_QC.txt {WORK_DIR}/{params.subs}/{TIME}/*/qc/*.combined.mutationburden.txt {WORK_DIR}/{params.subs}/{TIME}/*/qc/*.MSI.mantis.txt.status"
 	else
-		ssh {params.host} "python3 {params.mail} {WORK_DIR} {params.host} {version} {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv |mutt -s 'Compass ngs-pipeline Status: {params.names}' `whoami`@mail.nih.gov {params.email}"
+		cp {WORK_DIR}/{params.subs}/{TIME}/{rna_name}/qc/rnaseqc/metrics.tsv {WORK_DIR}/{params.subs}/{TIME}/{rna_name}/qc/rnaseqc/{rna_name}.metrics.tsv
+		ssh {params.host} "python3 {params.mail} {WORK_DIR} {params.host} {version} {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv {WORK_DIR}/QCI_VCFfiles/{rna_name}.arriba.count |mutt -s 'Compass ngs-pipeline Status: {params.names}' `whoami`@mail.nih.gov {params.email} -a {WORK_DIR}/{params.subs}/{TIME}/{rna_name}/qc/rnaseqc/{rna_name}.metrics.tsv {WORK_DIR}/{params.subs}/{TIME}/qc/*.consolidated_QC.txt {WORK_DIR}/{params.subs}/{TIME}/*/qc/*.combined.mutationburden.txt {WORK_DIR}/{params.subs}/{TIME}/*/qc/*.MSI.mantis.txt.status"
+		rm {WORK_DIR}/{params.subs}/{TIME}/{rna_name}/qc/rnaseqc/{rna_name}.metrics.tsv
 	fi
-	#ssh {params.host} "{params.mail} --location {WORK_DIR} --host {params.host} --head --version {version} {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv |mutt -e \\\"my_hdr Content-Type: text/html\\\" -s 'Compass ngs-pipeline Status: {SAMPLES}' `whoami`@mail.nih.gov {params.email} -a {WORK_DIR}/{params.subs}/{TIME}/qc/*.consolidated_QC.txt"
 	rm -rf {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv
 	#######################
 	"""

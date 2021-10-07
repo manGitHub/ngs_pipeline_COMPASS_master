@@ -19,6 +19,8 @@
 	"draw_fusions"		: "/data/Compass/Ref/hg19/IndexLP/arriba_2.0.0/draw_fusions.R",
 	"cytobands"		: "/data/Compass/Ref/hg19/IndexLP/arriba_2.0.0/cytobands_hg19_hs37d5_GRCh37_v2.0.0.tsv",
 	"proteinDomains"	: "/data/Compass/Ref/hg19/IndexLP/arriba_2.0.0/protein_domains_hg19_hs37d5_GRCh37_v2.0.0.gff3",
+	"QCI_fusionHeader"	: "/data/Compass/Ref/hg19/fusion/QCI_fusionHeader.csv",
+	"QCI_arribaGenes"	: "/data/Compass/Ref/hg19/fusion/LP_RNA_ExomeFusionPanel_03302021.txt",
 	"reference"		: "/data/Compass/Ref/hg19/Gencode_human_release_30_GRCh37/hg19.fa",
 	"Strelka_ref"		: "/data/Compass/Ref/hg19/Gencode_human_release_30_GRCh37/gencode_ref_ann/GRCh37.primary_assembly.genome.sorted.fa",
 	"HLA"			: "/data/Compass/Ref/hg19/HLA/",

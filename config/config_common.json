@@ -1,7 +1,7 @@
 {
 	"pipeline_version"	: "v4.1dev",
 	"mails"			: "-c manoj.tyagi@nih.gov -c kristin.valdez@nih.gov -c simran.chhabria@nih.gov -c jung.kim3@nih.gov -c yujin.lee@nih.gov",
-        "mail"                 : " -c kristin.valdez@nih.gov -c manoj.tyagi@nih.gov -c simran.chhabria@nih.gov ",
+        "mail"                 	: " -c kristin.valdez@nih.gov -c manoj.tyagi@nih.gov -c simran.chhabria@nih.gov ",
 	"platform"		: "Illumina",
 	"samtools"		: "0.1.19",
 	"samtools_arriba"	: "1.9",
@@ -55,6 +55,7 @@
 	"Actionable_mutation"	: "Actionable.v3.pl",
 	"Actionable_fusion"	: "ActionableFusion.v1.pl",
 	"filter_arriba"		: "filterArriba.py",
+        "arriba_QCI"            : "arriba_QCI.py",
         "manta"                 :  "1.6.0",
 	"Panel_List"		: ["clin.snv.v1", "clin.cnv.v2", "clin.snv.v2", "nbl.panel", "seqcapez.rms.v1", "nbl.somatic.panel", "panel_paed_v5_w5.1"],
 	"failed_exon_params": {

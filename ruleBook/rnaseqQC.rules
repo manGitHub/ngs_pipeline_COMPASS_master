@@ -26,7 +26,7 @@ rule RNASeqQC:
         """
 
 
-rule RNASeqQC_2:
+rule RNASeqQC_transcov:
 	input:
 		files = lambda wildcards: SUB_QC[wildcards.subject],
 		convertor=NGS_PIPELINE+"/scripts/transcript_coverage.R"

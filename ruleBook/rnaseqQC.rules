@@ -34,7 +34,7 @@ rule RNASeqQC_transcov:
 		plot="{subject}/{TIME}/qc/{subject}.transcriptCoverage.png"
 	version:config['version_R']
 	params:
-		rulename  = "RNASeqQC_2",
+		rulename  = "RNASeqQC_transcov",
 		batch     = config[config['host']]["job_covplot"]
 	shell: """
        #######################

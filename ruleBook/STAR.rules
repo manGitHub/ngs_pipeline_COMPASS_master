@@ -24,7 +24,7 @@ rule STAR:
 		rulename = "STAR",
 		samtools = config['samtools'],
 		batch    = config[config['host']]['job_STAR_TPM'],
-		star_gencode_ref  = config['star_2.7.0f_gencode'],
+		star_gencode_ref  = config['star_2.7.6a_gencode'],
 		home     = WORK_DIR,
 		picard   = config['picard']
 	shell: """

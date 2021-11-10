@@ -16,13 +16,12 @@ rule MutationalSignature:
 	params:
         	rulename = "MutationalSignature",
         	batch    = config[config['host']]["job_default"],
-        	rLib     = config['R_library'],
-        	mutSigs  = config['mutSigs_2020']        
+        	rLib     = config['R_library']
 	shell: """
 	#######################
 	module load R/{version}
 	awk '{{OFS="\\t"}}{{print $1,$2,$4,$5,"{wildcards.sample}"}}' {input.File} |sed -e '1s/{wildcards.sample}/Sample/g'>{output.v1}.tmp
-	{input.tool} --input {output.v1}.tmp --sample {wildcards.sample} --output {output.v1} --rLib {params.rLib} --mutSigs {params.mutSigs}
+	{input.tool} --input {output.v1}.tmp --sample {wildcards.sample} --output {output.v1} --rLib {params.rLib} 
 	rm -rf {output.v1}.tmp
 	#######################
 	"""

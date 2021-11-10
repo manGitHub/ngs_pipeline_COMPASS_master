@@ -113,7 +113,6 @@
 	},
 	"mantis_bed"		: "/data/Compass/Ref/hg19/design/MANTIS_target_loci.bed",
 	"R_library"		: "/data/Compass/Tools/R_ngs_libraries/4.0/library",
-	"mutSigs_2020"		: "/data/Compass/Tools/R_ngs_libraries/COSMIC_Mutational_Signatures_v3.1.RData",
 	"conpair_marker"	: "/data/Compass/Ref/hg19/verifyBamID/GRCh37.autosomes.phase3_shapeit2_mvncall_integrated.20130502.SNV.genotype.sselect_v4_MAF_0.4_LD_0.8.bed",
 	"cnvkit_access"		: "/data/Compass/Ref/hg19/access-5k-mappable.hg19.bed",
 	"1000G_phase1"		: "/data/Compass/Ref/hg19/Gencode_human_release_30_GRCh37/GATK_resources/1000G_phase1.indels.hg19.vcf",

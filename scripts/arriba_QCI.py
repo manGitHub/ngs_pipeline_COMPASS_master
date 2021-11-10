@@ -1,52 +1,57 @@
 import sys
 import pandas as pd
 
-# converts arriba output to QCI format
+# converts arriba output to QCI vcf format
 
-headerFile = sys.argv[1]        # TSO AllFusions.csv header
-inFile = sys.argv[2]            # arriba-fusions.txt
-genesFile = sys.argv[3]
-outFile = sys.argv[4]
-countFile = sys.argv[5]
+inFile = sys.argv[1]            # arriba-fusions.txt
+genesFile = sys.argv[2]
+outFile = sys.argv[3]
+countFile = sys.argv[4]
+sampleName = sys.argv[5]
 
-# TSO AllFusions.csv header and columns
-header = []
-cols = []
-with open(headerFile) as f:
-    for each in f:
-        if each.startswith('#'):
-            header.append(each.strip())
-        else:
-            cols.append(each.strip())
-cols = ''.join(cols).split(',')
-tso = pd.DataFrame(columns=cols)
-
-# fill df with arriba-fusion.txt input
 arriba = pd.read_csv(inFile,delimiter='\t')
-tso['Gene A'] = arriba['#gene1']
-tso['Gene B'] = arriba['gene2']
-tso['Gene A Breakpoint'] = arriba['breakpoint1']
-tso['Gene B Breakpoint'] = arriba['breakpoint2']
-tso['Filter'] = 'PASS'
-tso['KeepFusion'] = 'TRUE'
-tso['Alt Split Dedup'] = arriba['split_reads1'] + arriba['split_reads2']
-tso['Alt Pair Dedup'] = arriba['discordant_mates']
-tso['Fusion Directionality Known'] = 'TRUE'
-tso['Caller'] = 'Arriba'
 
 # filter genes
 with open(genesFile) as f:
     genes = [each.strip() for each in f]
-tso = tso.loc[tso['Gene A'].isin(genes) | tso['Gene B'].isin(genes)]
+arriba = arriba.loc[arriba['#gene1'].isin(genes) | arriba['gene2'].isin(genes)]
+
+# determine ALT column based on strands
+arriba['strand1'] = arriba['strand1(gene/fusion)'].str.split('/').str[0]
+arriba['strand2'] = arriba['strand2(gene/fusion)'].str.split('/').str[0]
+arriba.loc[(arriba.strand1 == '+') & (arriba.strand2 == '+'), 'ALT'] = 'G[' + arriba['breakpoint2'] + '['
+arriba.loc[(arriba.strand1 == '-') & (arriba.strand2 == '+'), 'ALT'] = '[' + arriba['breakpoint2'] + '[G'
+arriba.loc[(arriba.strand1 == '+') & (arriba.strand2 == '-'), 'ALT'] = 'G]' + arriba['breakpoint2'] + ']'
+arriba.loc[(arriba.strand1 == '-') & (arriba.strand2 == '-'), 'ALT'] = ']' + arriba['breakpoint2'] + ']G'
+arriba.loc[(arriba.strand1 == '.') & (arriba.strand2 == '-'), 'ALT'] = 'G]' + arriba['breakpoint2'] + ']'
+arriba.loc[(arriba.strand1 == '.') & (arriba.strand2 == '+'), 'ALT'] = 'G[' + arriba['breakpoint2'] + '['
+arriba.loc[(arriba.strand1 == '-') & (arriba.strand2 == '.'), 'ALT'] = '[' + arriba['breakpoint2'] + '[G'
+arriba.loc[(arriba.strand1 == '+') & (arriba.strand2 == '.'), 'ALT'] = 'G[' + arriba['breakpoint2'] + '['
+
+# INFO, count all supporting reads
+arriba['reads'] = arriba['split_reads1'] + arriba['split_reads2'] + arriba['discordant_mates']
+
+# if intergenic, take the first gene
+arriba['#gene1'] = arriba['#gene1'].str.split(',').str[0]
+arriba['gene2'] = arriba['gene2'].str.split(',').str[0]
+
+# vcf
+vcf = pd.DataFrame(columns=['#CHROM','POS','ID','REF','ALT','QUAL','FILTER','INFO','FORMAT',sampleName])
+vcf['#CHROM'] = arriba['breakpoint1'].str.split(':').str[0]
+vcf['POS'] = arriba['breakpoint1'].str.split(':').str[1]
+vcf['ID'] = '.'
+vcf['REF'] = 'G'
+vcf['ALT'] = arriba['ALT']
+vcf['QUAL'] = '.'
+vcf['FILTER'] = 'PASS'
+vcf['INFO'] = 'SVTYPE=Fusion;READ_COUNT=' + arriba['reads'].astype(str) + ';GENE_1=' + arriba['#gene1'].astype(str) + ';GENE_2=' + arriba['gene2'].astype(str) + ';'
+vcf['FORMAT'] = 'GT:GQ'
+vcf[sampleName] = './.:.'
 
 # write out count
 count = open(countFile,'w')
-count.write(str(len(tso)))
+count.write(str(len(arriba)))
 count.close()
 
-# write out header and df
-qci = open(outFile,'w')
-for heads in header:
-    qci.write(heads + '\n')
-tso.to_csv(qci,mode='a',index=False)
-qci.close()
+# write out vcf
+vcf.to_csv(outFile,index=False)

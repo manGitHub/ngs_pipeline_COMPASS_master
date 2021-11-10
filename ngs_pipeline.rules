@@ -376,13 +376,13 @@ rule Compass_Pipeline:
         done
 	if [ {params.type} == 'RNAseq' ]; then
 		cp {WORK_DIR}/{params.subs}/{TIME}/{sample}/qc/rnaseqc/metrics.tsv {WORK_DIR}/{params.subs}/{TIME}/{sample}/qc/rnaseqc/{sample}.metrics.tsv
-		ssh {params.host} "python3 {params.mail} {WORK_DIR} {params.host} {version} {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv {WORK_DIR}/QCI_VCFfiles/{sample}.arriba.count |mutt -s 'Compass ngs-pipeline Status: {params.names}' `whoami`@mail.nih.gov {params.email} -a {WORK_DIR}/{params.subs}/{TIME}/{sample}/qc/rnaseqc/{sample}.metrics.tsv"
+		ssh {params.host} "python3 {params.mail} {WORK_DIR} {params.host} {version} {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv {WORK_DIR}/QCI_VCFfiles/{TIME}/{sample}.arriba.count |mutt -s 'Compass ngs-pipeline Status: {params.names}' `whoami`@mail.nih.gov {params.email} -a {WORK_DIR}/{params.subs}/{TIME}/{sample}/qc/rnaseqc/{sample}.metrics.tsv"
 		rm {WORK_DIR}/{params.subs}/{TIME}/{sample}/qc/rnaseqc/{sample}.metrics.tsv
 	elif [ {params.type} == 'Tumor' ]; then 
 		ssh {params.host} "python3 {params.mail} {WORK_DIR} {params.host} {version} {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv |mutt -s 'Compass ngs-pipeline Status: {params.names}' `whoami`@mail.nih.gov {params.email} -a {WORK_DIR}/{params.subs}/{TIME}/qc/*.consolidated_QC.txt {WORK_DIR}/{params.subs}/{TIME}/*/qc/*.combined.mutationburden.txt {WORK_DIR}/{params.subs}/{TIME}/*/qc/*.MSI.mantis.txt.status"
 	else
 		cp {WORK_DIR}/{params.subs}/{TIME}/{rna_name}/qc/rnaseqc/metrics.tsv {WORK_DIR}/{params.subs}/{TIME}/{rna_name}/qc/rnaseqc/{rna_name}.metrics.tsv
-		ssh {params.host} "python3 {params.mail} {WORK_DIR} {params.host} {version} {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv {WORK_DIR}/QCI_VCFfiles/{rna_name}.arriba.count |mutt -s 'Compass ngs-pipeline Status: {params.names}' `whoami`@mail.nih.gov {params.email} -a {WORK_DIR}/{params.subs}/{TIME}/{rna_name}/qc/rnaseqc/{rna_name}.metrics.tsv {WORK_DIR}/{params.subs}/{TIME}/qc/*.consolidated_QC.txt {WORK_DIR}/{params.subs}/{TIME}/*/qc/*.combined.mutationburden.txt {WORK_DIR}/{params.subs}/{TIME}/*/qc/*.MSI.mantis.txt.status"
+		ssh {params.host} "python3 {params.mail} {WORK_DIR} {params.host} {version} {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv {WORK_DIR}/QCI_VCFfiles/{TIME}/{rna_name}.arriba.count |mutt -s 'Compass ngs-pipeline Status: {params.names}' `whoami`@mail.nih.gov {params.email} -a {WORK_DIR}/{params.subs}/{TIME}/{rna_name}/qc/rnaseqc/{rna_name}.metrics.tsv {WORK_DIR}/{params.subs}/{TIME}/qc/*.consolidated_QC.txt {WORK_DIR}/{params.subs}/{TIME}/*/qc/*.combined.mutationburden.txt {WORK_DIR}/{params.subs}/{TIME}/*/qc/*.MSI.mantis.txt.status"
 		rm {WORK_DIR}/{params.subs}/{TIME}/{rna_name}/qc/rnaseqc/{rna_name}.metrics.tsv
 	fi
 	rm -rf {WORK_DIR}/ngs_pipeline_{SAMPLESHEET}_{NOW}.csv

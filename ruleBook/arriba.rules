@@ -95,13 +95,12 @@ rule arriba_QCI:
     batch    = config[config['host']]['job_default'],
     qci_output      = WORK_DIR + "/QCI_VCFfiles",
     QCI      = NGS_PIPELINE + "/scripts/" + config['arriba_QCI'],
-    QCIheader = config['QCI_fusionHeader'],
     genes    = config['QCI_arribaGenes'],
     home     = WORK_DIR
   shell: """
     ######################################
-    if [ ! -d "{params.qci_output}" ]; then mkdir {params.qci_output}; fi
-    python3 {params.QCI} {params.QCIheader} {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/fusion/arriba-fusion.txt {params.genes} {params.qci_output}/{wildcards.sample}.arriba.csv {params.qci_output}/{wildcards.sample}.arriba.count
+    if [ ! -d "{params.qci_output}/{TIME}" ]; then mkdir -p {params.qci_output}/{TIME}; fi
+    python3 {params.QCI} {input} {params.genes} {params.qci_output}/{TIME}/{wildcards.sample}.arriba.csv {params.qci_output}/{TIME}/{wildcards.sample}.arriba.count {wildcards.sample}
     touch {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/fusion/arriba_QCI.done
     ######################################
     """

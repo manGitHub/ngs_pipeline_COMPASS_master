@@ -23,7 +23,7 @@ rule QCI_VCF:
 		home     	= WORK_DIR
 	shell: """
 	#################
-	if [ ! -d "{params.qci_output}" ]; then mkdir {params.qci_output}; fi
+	if [ ! -d "{params.qci_output}/{TIME}" ]; then mkdir -p {params.qci_output}/{TIME}; fi
 	module load vcftools/{params.vcftools}
 	cd ${{LOCAL}}/
 	# separate normal and tumor
@@ -40,8 +40,8 @@ rule QCI_VCF:
 	sed -i '/^#/d' {params.normal}.strelka.indels.normal.vcf &&
 	# combine
 	if [ -f {params.normal}.mutect.snps.normal_noGT.vcf ]; then
-		cat {wildcards.sample}.mutect.snps.tumor.vcf {wildcards.sample}.strelka.indels.tumor.vcf > {params.qci_output}/{wildcards.sample}.tumor.vcf
-		cat {params.normal}.mutect.snps.normal_noGT.vcf {params.normal}.strelka.indels.normal.vcf > {params.qci_output}/{params.normal}.normal.vcf
+		cat {wildcards.sample}.mutect.snps.tumor.vcf {wildcards.sample}.strelka.indels.tumor.vcf > {params.qci_output}/{TIME}/{wildcards.sample}.tumor.vcf
+		cat {params.normal}.mutect.snps.normal_noGT.vcf {params.normal}.strelka.indels.normal.vcf > {params.qci_output}/{TIME}/{params.normal}.normal.vcf
 		touch {params.home}/{output.qci_done}
 	fi
 	#################

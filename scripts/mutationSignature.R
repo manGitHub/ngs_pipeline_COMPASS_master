@@ -63,9 +63,9 @@ pdf(output,width=10)
 #plotSignatures(sig_2019, sub='Mutational Signatures - 2019 v3')
 #makePie(sig_2019, sub='Mutational Signatures - 2019 v3',v3=TRUE)
 #plotSignatures(sig_2020, sub='Mutational Signatures - 2020 v3.1')
-#makePie_plus(sig_2020, sub='Mutational Signatures - 2020 v3.1',v3.1=TRUE)
+#makePie_2020(sig_2020, sub='Mutational Signatures - 2020 v3.1',v3.1=TRUE)
 plotSignatures(sig_2021, sub='Mutational Signatures - 2021 v3.2')
-makePie_plus(sig_2021, sub='Mutational Signatures - 2021 v3.2',v3.2=TRUE)
+makePie_2020(sig_2021, sub='Mutational Signatures - 2021 v3.2',v3.2=TRUE)
 
 
 dev.off()

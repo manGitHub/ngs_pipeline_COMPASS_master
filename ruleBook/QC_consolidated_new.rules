@@ -1,0 +1,79 @@
+# vim: syntax=python tabstop=4 expandtab
+# coding: utf-8
+
+TARGET += ["{subject}/{TIME}/{sample}/qc/{sample}.consolidated_QC_new.txt".format(TIME=TIME, subject=SAMPLE_TO_SUBJECT[s], sample=s) for s in SAMPLES]
+############
+#       mosdepth
+############
+rule mosdepth:
+        input:
+             bam="{base}/{TIME}/{sample}/{sample}.bwa.final.bam",
+             target_intervals =lambda wildcards: config['target_intervals'][config['sample_captures'][wildcards.sample]],
+        output: 
+             ("{base}/{TIME}/{sample}/qc/mosdepth/{sample}.thresholds.bed.gz"),
+             ("{base}/{TIME}/{sample}/qc/mosdepth/{sample}.regions.bed.gz"),
+        params:
+             rulename = "mosdepth",
+             batch = config[config['host']]["job_mosdepth"],
+             mosdepth_output = "{base}/{TIME}/{sample}/qc/mosdepth/{sample}",
+        shell: """
+        #######################
+        if [ ! -d "{params.mosdepth_output}"]; then mkdir {params.mosdepth_output} ; fi
+        module load python
+        module load mosdepth
+        mosdepth --by {input.target_intervals} --fast-mode -n  -F 1024 -Q 30 --threshold 5,10,15,20,30,50,100,200,400,1000  {params.mosdepth_output} {input.bam}
+        ##########################
+        """
+############
+#       qualimap
+############
+
+rule qualimap:
+        input:
+             bam="{base}/{TIME}/{sample}/{sample}.bwa.final.bam",
+             target_intervals = config['target_bed_reformat'],
+        output:
+             txt_file = os.path.join("{base}/{TIME}/{sample}/qc/qualimap/","genome_results.txt"),
+             html_file = os.path.join("{base}/{TIME}/{sample}/qc/qualimap/","qualimapReport.html"),
+        params:
+             rulename = "qualimap",
+             batch = config[config['host']]["job_qualimap"],
+             qualimap_output = "{base}/{TIME}/{sample}/qc/qualimap/",
+        shell: """
+        #######################
+        if [ ! -d "{params.qualimap_output}"]; then mkdir {params.qualimap_output} ; fi
+        module load qualimap/2.2.1
+           qualimap bamqc -bam {input.bam} \\
+               --java-mem-size=${{MEM}}G \\
+               -c -ip \\
+               -gff {input.target_intervals} \\
+               -outformat HTML \\
+               -outdir {params.qualimap_output} \\
+               -nt ${{THREADS}} \\
+               --skip-duplicated \\
+       #######################
+             """
+
+#########
+# Combining the results
+##########
+
+rule summary_table:
+        input:
+             mosdepth_threshold_file= "{base}/{TIME}/{sample}/qc/mosdepth/{sample}.thresholds.bed.gz",
+             mosdepth_regions_file = "{base}/{TIME}/{sample}/qc/mosdepth/{sample}.regions.bed.gz",
+             qualimap_file = "{base}/{TIME}/{sample}/qc/qualimap/qualimapReport.html",
+             hs_metrics = "{base}/{TIME}/{sample}/qc/{sample}.hsmetrics",
+        output:
+             final_table = "{base}/{TIME}/{sample}/qc/{sample}.consolidated_QC_new.txt",
+        params:
+             rulename = "summary_table",
+             batch = config[config['host']]["job_default"],
+             combined_script = NGS_PIPELINE+ "/scripts/combined_python.py",
+             diagnosis       = lambda wildcards: config['Diagnosis'][wildcards.sample]
+        shell: """
+        #################
+        python3 {params.combined_script} {input.mosdepth_threshold_file} {input.qualimap_file} {input.mosdepth_regions_file} {input.hs_metrics} {output.final_table} {wildcards.base} {wildcards.sample}  "{params.diagnosis}" 
+        #################
+                """ 
+

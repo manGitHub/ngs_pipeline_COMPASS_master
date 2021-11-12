@@ -8,6 +8,7 @@
 		"job_copynumber" : "--partition=ccr,norm --time=04:00:00 --mem=10G  --cpus-per-task=25  --gres=lscratch:10",
 		"job_exonExp"    : "--partition=ccr,norm --time=15:00:00 --mem=05G  --cpus-per-task=32  --gres=lscratch:10",
 		"job_qualimap"   : "--partition=ccr,norm --time=04:00:00 --mem=19G  --cpus-per-task=16  --gres=lscratch:40",
+		"job_mosdepth"   : "--partition=ccr,norm --time=04:00:00 --mem=19G  --cpus-per-task=16  --gres=lscratch:40",
 		"job_fusioncatch": "--partition=ccr,norm --time=24:00:00 --mem=120G --cpus-per-task=30  --gres=lscratch:500",
 		"job_STAR"       : "--partition=ccr,norm --time=15:00:00 --mem=100G  --cpus-per-task=30  --gres=lscratch:800",
 		"job_RSEM"       : "--partition=ccr,norm --time=30:00:00 --mem=30G  --cpus-per-task=4  --gres=lscratch:200",

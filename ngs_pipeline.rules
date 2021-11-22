@@ -286,7 +286,7 @@ include: NGS_PIPELINE +"/ruleBook/mutationBurden.rules"
 include: NGS_PIPELINE +"/ruleBook/AttachAnnotationFull.rules"
 include: NGS_PIPELINE +"/ruleBook/QCI_VCF.rules"
 include: NGS_PIPELINE +"/ruleBook/mantis.rules"
-include: NGS_PIPELINE +"/ruleBook/QC_consolidated_new.rules"
+#include: NGS_PIPELINE +"/ruleBook/QC_consolidated_new.rules"
 
 ###########################################################################
 # we have to do it this way as some samples may not have rna or tumor     #

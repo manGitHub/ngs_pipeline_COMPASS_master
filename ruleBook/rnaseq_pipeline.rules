@@ -26,6 +26,7 @@ if 'RNASeq' in config:
 		#RNA_QC_ALL +=[subject+"/"+TIME+"/qc/"+subject+".RnaSeqQC.txt"]
 		TARGET_R   +=[subject+"/"+TIME+"/"+subject+"/db/"+subject+".rnaseq"]
 		TARGET_R   +=[subject+"/"+TIME+ACT_DIR+subject+".fusion.actionable.txt"]
+		TARGET_R   +=[subject+"/"+TIME+"/"+subject+"/db/"+subject+".fusion.txt"]
 		TARGET_R   +=[subject+"/"+TIME+ACT_DIR+subject+".rnaseq.actionable.txt"]
                 #TARGET_R   +=[subject+"/"+TIME+"/qc/"+subject+".RnaSeqQC.txt"]
 		TARGET_R   +=[subject+"/"+TIME+"/qc/"+subject+".transcriptCoverage.png"]
@@ -213,5 +214,36 @@ rule Actionable_fusion:
 	grep -v "LeftGene" {output}.tmp >>{output}
 	
 	rm -rf {output}.tmp
+	#######################
+	"""
+
+############
+# Annotate fusions with singularity image
+############
+rule fusion_annotation:
+	input: 	 
+		"{subject}/{TIME}/Actionable/{subject}.fusion.actionable.txt"
+	output:	 
+		"{subject}/{TIME}/{subject}/db/{subject}.fusion.txt"
+	version: config["singularity"]
+	params:
+		rulename        = "fusion_annotation",
+		work_dir        = WORK_DIR,
+		image           = config["fusion_image"],
+		pfam            = config["fusion_pfamDB"],
+		fasta           = config["fusion_fasta"],
+		gencode_version = "36",
+		FusionPlot      = config["FusionPlot"],
+		batch           = config[config["host"]]["job_annot"] 
+	shell: """
+	#######################
+	module load singularity/{version}
+	singularity exec --bind {params.work_dir},{params.FusionPlot} {params.image} processFusionCase.sh \
+		-d {params.work_dir} \
+		-p {wildcards.subject} \
+		-c {TIME} \
+		-f {params.pfam} \
+		-g {params.fasta} \
+		-v {params.gencode_version}
 	#######################
 	"""

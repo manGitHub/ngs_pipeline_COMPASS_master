@@ -11,6 +11,7 @@ if 'sample_references' in config:
 		if config['sample_captures'][sample] not in config['Panel_List']:
 			TARGET +=[subject+"/"+TIME+"/"+sample+"/sequenza/"+sample+"/"+sample+"_segments.txt"]	
 			TARGET +=[subject+"/"+TIME+"/"+sample+"/sequenza/"+sample+".txt"]
+			TARGET +=[subject+"/"+TIME+"/"+sample+"/sequenza/"+sample+"_genelevel.txt"]
 
 ############
 #       Sequenza

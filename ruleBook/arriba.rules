@@ -6,11 +6,13 @@ if 'RNASeq' in config:
 		for sample in SAM_RNASEQ[subject]:
 			TARGET_R += [subject+"/"+TIME+"/"+sample+"/fusion/arriba-fusion.txt"]
 			TARGET_R += [subject+"/"+TIME+"/"+sample+"/fusion/arriba_QCI.done"]
+			TARGET_R += [subject+"/"+TIME+"/"+sample+"/arriba_out/fusions.pdf"]
 
 rule arriba:
   input: R=lambda wildcards: FQ[wildcards.sample]
   output:
-    "{subject}/{TIME}/{sample}/fusion/arriba-fusion.txt"
+    "{subject}/{TIME}/{sample}/fusion/arriba-fusion.txt",
+    "{subject}/{TIME}/{sample}/arriba_out/fusions.pdf"
   version:
     config["STAR_arriba"]
   params:

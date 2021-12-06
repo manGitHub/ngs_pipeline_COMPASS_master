@@ -238,7 +238,7 @@ rule fusion_annotation:
 	shell: """
 	#######################
 	module load singularity/{version}
-	singularity exec --bind {params.work_dir},{params.FusionPlot} {params.image} processFusionCase.sh \
+	singularity exec -e --bind {params.work_dir},{params.FusionPlot} {params.image} processFusionCase.sh \
 		-d {params.work_dir} \
 		-p {wildcards.subject} \
 		-c {TIME} \

@@ -11,10 +11,14 @@ sampleName = sys.argv[5]
 
 arriba = pd.read_csv(inFile,delimiter='\t')
 
+# count all supporting reads
+arriba['reads'] = arriba['split_reads1'].astype(int) + arriba['split_reads2'].astype(int) + arriba['discordant_mates'].astype(int)
+
 # filter genes
 with open(genesFile) as f:
     genes = [each.strip() for each in f]
 arriba = arriba.loc[arriba['#gene1'].isin(genes) | arriba['gene2'].isin(genes)]
+arriba = arriba.loc[arriba['reads'].astype(int) >= 10]
 
 # determine ALT column based on strands
 arriba['strand1'] = arriba['strand1(gene/fusion)'].str.split('/').str[0]
@@ -27,9 +31,6 @@ arriba.loc[(arriba.strand1 == '.') & (arriba.strand2 == '-'), 'ALT'] = 'G]' + ar
 arriba.loc[(arriba.strand1 == '.') & (arriba.strand2 == '+'), 'ALT'] = 'G[' + arriba['breakpoint2'] + '['
 arriba.loc[(arriba.strand1 == '-') & (arriba.strand2 == '.'), 'ALT'] = '[' + arriba['breakpoint2'] + '[G'
 arriba.loc[(arriba.strand1 == '+') & (arriba.strand2 == '.'), 'ALT'] = 'G[' + arriba['breakpoint2'] + '['
-
-# INFO, count all supporting reads
-arriba['reads'] = arriba['split_reads1'] + arriba['split_reads2'] + arriba['discordant_mates']
 
 # if intergenic, take the first gene
 arriba['#gene1'] = arriba['#gene1'].str.split(',').str[0]

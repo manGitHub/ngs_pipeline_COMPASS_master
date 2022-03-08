@@ -1,0 +1,34 @@
+for subject in config['subject']:
+	for sample in config['subject'][subject]:
+		if config["sample_type"][sample] =='Tumor':
+			TARGET +=[subject+"/"+TIME+"/"+sample+"/TCellExTRECT/"+sample+"_TCellExTRECT_with_tumor.pdf"] 
+			TARGET +=[subject+"/"+TIME+"/"+sample+"/TCellExTRECT/"+sample+"_TCellExTRECT_naive.pdf"]
+
+############
+#       tCellExtrect
+############
+rule tCellExtrect:
+	input:
+		bam="{base}/{TIME}/{sample}/{sample}.bwa.final.bam",
+		seq="{base}/{TIME}/{sample}/sequenza/{sample}/{sample}_alternative_solutions.txt"
+	output:
+		"{base}/{TIME}/{sample}/TCellExTRECT/{sample}_TCellExTRECT_with_tumor.pdf",
+		"{base}/{TIME}/{sample}/TCellExTRECT/{sample}_TCellExTRECT_naive.pdf"
+	version: config["singularity"]
+	params:
+		rulename  	= "tCellExtrect",
+		batch     	= config[config['host']]["job_failedExon"],
+		work_dir  	= WORK_DIR,
+		tCellExtrect	= config["tCellExtrect"],
+		image 		= config["tCell_image"],
+		bed_dir 	= config['tCell_bed_dir'],
+		bed 		= lambda wildcards: config['target_intervals'][pairedCapture[wildcards.sample]]
+	shell: """
+	#######################
+	module load singularity/{version}
+
+	singularity exec -e --bind {params.work_dir},{params.tCellExtrect},{params.bed_dir} {params.image} runTCellExTRECT.sh \
+	-b {params.work_dir}/{input.bam} \
+	-d {params.bed}
+	#######################
+	"""

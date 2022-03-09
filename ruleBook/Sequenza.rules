@@ -24,7 +24,8 @@ rule Sequenza:
 		RCode=NGS_PIPELINE+ "/scripts/run_sequenza_pipeline.R",
 		ref=config["reference"]
 	output:
-		"{subject}/{TIME}/{Tumor}/sequenza/{Tumor}/{Tumor}_segments.txt"
+		"{subject}/{TIME}/{Tumor}/sequenza/{Tumor}/{Tumor}_segments.txt",
+		"{subject}/{TIME}/{Tumor}/sequenza/{Tumor}/{Tumor}_alternative_solutions.txt"
 	version: config['sequenza-utils']
 	params:
 		rulename = "Sequenza",

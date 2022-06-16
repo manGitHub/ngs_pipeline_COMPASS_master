@@ -213,7 +213,9 @@ rule Actionable_fusion:
 	#######################
 	cat {input.fusion} |sort |uniq >{output}.tmp
 	grep "LeftGene" {output}.tmp >{output}
-	grep -v "LeftGene" {output}.tmp >>{output}
+	if grep -q -v "LeftGene" {output}.tmp; then
+		grep -v "LeftGene" {output}.tmp >>{output}
+	fi
 	
 	rm -rf {output}.tmp
 	#######################

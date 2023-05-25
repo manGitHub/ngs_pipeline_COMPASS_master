@@ -85,23 +85,25 @@ rule arriba:
       --proteinDomains={params.prot} \
       --sampleName={wildcards.sample}
 
-    mkdir miniBAMs
-    {params.miniBAM} \
-    {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/arriba_out/fusions.tsv \
-    {wildcards.sample}.coordSort.arriba.Aligned.out.bam \
-    miniBAMs/{wildcards.sample}
+    if grep -q -v "gene1" {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/arriba_out/fusions.tsv; then
+        mkdir miniBAMs
+        {params.miniBAM} \
+        {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/arriba_out/fusions.tsv \
+        {wildcards.sample}.coordSort.arriba.Aligned.out.bam \
+        miniBAMs/{wildcards.sample}
 
-    samtools merge \
-    {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/{wildcards.sample}.star.fusions.bam \
-    miniBAMs/*bam
+        samtools merge \
+        {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/{wildcards.sample}.star.fusions.bam \
+        miniBAMs/*bam
 
-    samtools index \
-    {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/{wildcards.sample}.star.fusions.bam
+        samtools index \
+        {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/{wildcards.sample}.star.fusions.bam
 
-    {params.vcf} \
-    {params.ref} \
-    {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/arriba_out/fusions.tsv \
-    {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/arriba_out/fusions.vcf
+        {params.vcf} \
+        {params.ref} \
+        {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/arriba_out/fusions.tsv \
+        {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/arriba_out/fusions.vcf
+    fi
     ######################################
     """
 

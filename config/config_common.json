@@ -7,6 +7,7 @@
 	"samtools_arriba"	: "1.9",
 	"samtools_new"		: "1.12",
 	"fastqc"		: "0.11.2",
+	"multiQC"		: "1.14",
 	"fastq_screen"		: "0.15.2",
 	"bedtools"		: "2.22.0",
 	"bwa"			: "0.7.17",

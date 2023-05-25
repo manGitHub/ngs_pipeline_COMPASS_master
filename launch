@@ -84,7 +84,7 @@ if (`hostname` =~ /cn/ or `hostname` =~ /biowulf.nih.gov/){
 		my $cmd = "(
 		export TMP=$NOW
 		export TIME=$time
-		snakemake=/usr/local/apps/snakemake/5.4.0/bin/snakemake
+		snakemake=/usr/local/apps/snakemake/7.3.7/bin/snakemake
 		export NGS_PIPELINE=$NGS_PIPELINE
 		export WORK_DIR=$workDir
 		export DATA_DIR=$dataDir

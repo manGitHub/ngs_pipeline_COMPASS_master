@@ -5,7 +5,7 @@
 # 
 # Usually slurm can translate the PBS varibles so no need to initialize the sbatch variables.
 #set -eo pipefail
-snakemake=/usr/local/apps/snakemake/5.4.0/bin/snakemake
+snakemake=/usr/local/apps/snakemake/7.3.7/bin/snakemake
 if [[ $time == 'd' ]]; then
 	export TIME="20160415"
 elif [[ $time == 'p' ]]; then
@@ -62,7 +62,7 @@ fi
 export ACT_DIR="/Actionable/"
 SNAKEFILE=$NGS_PIPELINE/ngs_pipeline.rules
 
-cmd="--directory $WORK_DIR --snakefile $SNAKEFILE --configfile $SAM_CONFIG --jobscript $NGS_PIPELINE/scripts/jobscript.sh --jobname {params.rulename}.{jobid} --nolock  --ri -k -p  -r -j 3000 --resources DeFuse=25 --resources SIFT=8 --stats ngs_pipeline_${sheet_name}_${NOW}.stats -R RNASeq --latency-wait 120"
+cmd="--directory $WORK_DIR --snakefile $SNAKEFILE --configfile $SAM_CONFIG --jobname {params.rulename}.{jobid} --nolock  --ri -k -p  -r -j 3000 --resources DeFuse=25 --resources SIFT=8 --stats ngs_pipeline_${sheet_name}_${NOW}.stats -R RNASeq --latency-wait 120"
 #cmd="--directory $WORK_DIR --snakefile $SNAKEFILE --configfile $SAM_CONFIG --jobscript $NGS_PIPELINE/scripts/jobscript.sh --jobname {params.rulename}.{jobid} --nolock  --ri -k -p -T -r -j 3000 --resources DeFuse=25 --resources SIFT=8 --stats ngs_pipeline_${sheet_name}_${NOW}.stats -R RNASeq -O MergeFQ Compass_Pipeline RNASeq"
 umask 022
 if [ $HOST   == 'biowulf.nih.gov' ]; then

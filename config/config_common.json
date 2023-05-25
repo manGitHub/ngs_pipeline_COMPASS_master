@@ -1,7 +1,7 @@
 {
-	"pipeline_version"	: "v4.2",
+	"pipeline_version"	: "4.2.1dev",
 	"mail"			: "-c manoj.tyagi@nih.gov -c kristin.valdez@nih.gov -c jung.kim3@nih.gov -c yujin.lee@nih.gov",
-        "mails"                 : "-c manoj.tyagi@nih.gov",
+        "mails"                 : "-c kristin.valdez@nih.gov",
 	"platform"		: "Illumina",
 	"samtools"		: "0.1.19",
 	"samtools_arriba"	: "1.9",
@@ -16,7 +16,7 @@
 	"arriba"		: "2.2.1",
 	"starseqr"		: "0.6.7",
 	"rnaseqc"		: "1.1.8",
-	"singularity"		: "3.8.5",
+	"singularity"		: "3.10.5",
 	"picard"		: "2.18.27",
 	"bamutil" 		: "1.0.13",
 	"GATK"			: "3.8-1",

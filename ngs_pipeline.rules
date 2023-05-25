@@ -364,7 +364,8 @@ rule Compass_Pipeline:
 		host     = config["host"],
 		subs     = PATIENTS,
 		names 	 = fcid,
-		type	 = samp_type
+		type	 = samp_type,
+		multiqc	 = config["multiQC"]
 	shell: """
 	#######################
 	rm -rf ngs_pipeline_{SAMPLESHEET}_{NOW}.rnaseq.done
@@ -372,8 +373,11 @@ rule Compass_Pipeline:
 	find {PATIENTS} log \( -type f -user $USER -exec chmod g+rw {{}} \; \) , \( -type d -user $USER -exec chmod g+rwx {{}} \; \)
 	export LC_ALL=C
 
+	module load multiqc/{params.multiqc}
+
 	for sub in {params.subs}
         do
+                multiqc -f {WORK_DIR}/${{sub}}/{TIME}/ -x *bowtielog -o {WORK_DIR}/${{sub}}/{TIME}/qc/
                 touch {WORK_DIR}/${{sub}}/{TIME}/successful.txt
 		chmod g+rw {WORK_DIR}/${{sub}}/{TIME}/successful.txt 	
 		chgrp {params.group} {WORK_DIR}/${{sub}}/{TIME}/successful.txt

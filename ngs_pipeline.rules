@@ -154,6 +154,7 @@ TARGET     += expand("{subject}/{TIME}/annotation/AnnotationInput.coding.rare.tx
 TARGET     += expand("{subject}/{TIME}/annotation/{subject}.Annotations.coding.rare.txt", TIME=TIME, subject=PATIENTS)
 TARGET     += expand("{subject}/{TIME}/qc/{subject}.config.{NOW}.txt", TIME=TIME, subject=PATIENTS, NOW=NOW)
 TARGET     += expand("{subject}/{TIME}/igv/session_{subject}.xml", TIME=TIME, subject=PATIENTS)
+TARGET      = ["{subject}/{TIME}/{sample}/qc/fastq_screen/{sample}_R2_screen.html".format(TIME=TIME, subject=SAMPLE_TO_SUBJECT[s], sample=s) for s in SAMPLES]
 
 if len(config['sample_references']) > 0:
 	for Tumor in config['sample_references']:
@@ -465,6 +466,38 @@ rule FASTQC:
 	mv {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/stdin_fastqc.zip  {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/{wildcards.sample}_R2_fastqc.zip
 	#######################
 	"""
+############
+#       Fastq_screen
+############
+rule Fastq_screen:
+        input: R=lambda wildcards: FQ[wildcards.sample]
+        output:
+                "{base}/{TIME}/{sample}/qc/fastq_screen/{sample}_R1_screen.txt",
+                "{base}/{TIME}/{sample}/qc/fastq_screen/{sample}_R1_screen.png",
+                "{base}/{TIME}/{sample}/qc/fastq_screen/{sample}_R1_screen.html",
+                "{base}/{TIME}/{sample}/qc/fastq_screen/{sample}_R2_screen.txt",
+                "{base}/{TIME}/{sample}/qc/fastq_screen/{sample}_R2_screen.png",
+                "{base}/{TIME}/{sample}/qc/fastq_screen/{sample}_R2_screen.html"
+        version: config["fastq_screen"]
+        params:
+                rulename  = "Fastq_screen",
+                batch     = config[config['host']]["job_fastqc"],
+                bowtie    = config["bowtie2"],
+                config_fs = config["fastq_screen-config"] 
+        shell: """
+        #######################
+        module load fastq_screen/{version}
+	module load bowtie/{params.bowtie}
+
+        fastq_screen --conf {params.config_fs} --subset 1000000 --aligner bowtie2 --force {input.R[0]} {input.R[1]}  --outdir {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastq_screen/
+	mv {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastq_screen/{wildcards.sample}*_R1_screen.txt {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastq_screen/{wildcards.sample}_R1_screen.txt
+	mv {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastq_screen/{wildcards.sample}*_R1_screen.png {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastq_screen/{wildcards.sample}_R1_screen.png
+	mv {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastq_screen/{wildcards.sample}*_R1_screen.html {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastq_screen/{wildcards.sample}_R1_screen.html
+	mv {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastq_screen/{wildcards.sample}*_R2_screen.txt {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastq_screen/{wildcards.sample}_R2_screen.txt
+	mv {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastq_screen/{wildcards.sample}*_R2_screen.png {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastq_screen/{wildcards.sample}_R2_screen.png
+	mv {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastq_screen/{wildcards.sample}*_R2_screen.html {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastq_screen/{wildcards.sample}_R2_screen.html
+        #######################
+        """
 ############
 #       BWA
 ############

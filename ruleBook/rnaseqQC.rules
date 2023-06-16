@@ -19,7 +19,11 @@ rule RNASeqQC:
 		batch     = config[config['host']]["job_markdup"],
 	shell: """
         #######################
-        module load picard/{version}
+        PICARDJARPATH=/data/Compass/dev/valdezkm/software/picard/2.18.27
+        PICARD_JARPATH=/data/Compass/dev/valdezkm/software/picard/2.18.27
+        PICARDJAR=/data/Compass/dev/valdezkm/software/picard/2.18.27/picard.jar
+        PICARD_JAR=/data/Compass/dev/valdezkm/software/picard/2.18.27/picard.jar
+
         module load R/{params.R}
         java -Xmx${{MEM}}g -Djava.io.tmpdir=${{LOCAL}} -jar $PICARD_JAR CollectRnaSeqMetrics STRAND_SPECIFICITY=NONE VALIDATION_STRINGENCY=SILENT REF_FLAT={input.ref_flat} RIBOSOMAL_INTERVALS={input.rna_interval} INPUT={input.bam} OUTPUT={output.table} 
         #######################
@@ -63,9 +67,19 @@ rule RNASeqQC_star:
 		home      = WORK_DIR,
 	shell: """
         ###########################
-	module load rnaseqc/{version}
-	module load  picard/{params.picard}
+	JAVA_HOME=/data/Compass/dev/valdezkm/software/Java/jdk1.7.0_25
+	PATH=/data/Compass/dev/valdezkm/software/Java/jdk1.7.0_25/bin:$PATH
+	LD_LIBRARY_PATH=/data/Compass/dev/valdezkm/software/Java/jdk1.7.0_25/lib:$LD_LIBRARY_PATH
+
+	RNASEQCPATH=/data/Compass/dev/valdezkm/software/rnaseqc/1.1.8
+	module load bwa/0.7.17
+	module load samtools/1.17
+	PICARDJARPATH=/data/Compass/dev/valdezkm/software/picard/2.18.27
+	PICARD_JARPATH=/data/Compass/dev/valdezkm/software/picard/2.18.27
+	PICARDJAR=/data/Compass/dev/valdezkm/software/picard/2.18.27/picard.jar
+	PICARD_JAR=/data/Compass/dev/valdezkm/software/picard/2.18.27/picard.jar
 	module load R/{params.R}
+
 	if [ -d "{params.home}/{wildcards.base}/{TIME}/{wildcards.sample}/qc/rnaseqc" ]; then rm -Rf {params.home}/{wildcards.base}/{TIME}/{wildcards.sample}/qc/rnaseqc; fi
 	java -Xmx${{MEM}}g  -Djava.io.tmpdir=${{LOCAL}} -jar $RNASEQCPATH/RNA-SeQC_v1.1.8.jar   -r {input.ref} -rRNA {input.rna_interval} -o {wildcards.base}/{TIME}/{wildcards.sample}/qc/rnaseqc  -s "{wildcards.sample}|{input.bam}|{wildcards.sample}" -t {input.gtf}
         ###########################

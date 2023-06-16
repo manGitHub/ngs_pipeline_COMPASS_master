@@ -24,15 +24,15 @@ rule QCI_VCF:
 	shell: """
 	#################
 	if [ ! -d "{params.qci_output}/{TIME}" ]; then mkdir -p {params.qci_output}/{TIME}; fi
-	module load vcftools/{params.vcftools}
 	cd ${{LOCAL}}/
+	export PERL5LIB=/data/Compass/dev/valdezkm/software/vcftools/0.1.13/perl
 	# separate normal and tumor
 	# strelka indels
-	vcf-subset -u -c {wildcards.sample} {params.home}/{input.strelka_indel} > {wildcards.sample}.strelka.indels.tumor.vcf &&
-	vcf-subset -u -c {params.normal} {params.home}/{input.strelka_indel} > {params.normal}.strelka.indels.normal.vcf &&
+	/data/Compass/dev/valdezkm/software/vcftools/0.1.13/bin/vcf-subset -u -c {wildcards.sample} {params.home}/{input.strelka_indel} > {wildcards.sample}.strelka.indels.tumor.vcf &&
+	/data/Compass/dev/valdezkm/software/vcftools/0.1.13/bin/vcf-subset -u -c {params.normal} {params.home}/{input.strelka_indel} > {params.normal}.strelka.indels.normal.vcf &&
 	# mutect snps
-	vcf-subset -u -c {wildcards.sample} {params.home}/{input.mutect_snp} > {wildcards.sample}.mutect.snps.tumor.vcf &&
-	vcf-subset -u -c {params.normal} {params.home}/{input.mutect_snp} > {params.normal}.mutect.snps.normal.vcf &&
+	/data/Compass/dev/valdezkm/software/vcftools/0.1.13/bin/vcf-subset -u -c {wildcards.sample} {params.home}/{input.mutect_snp} > {wildcards.sample}.mutect.snps.tumor.vcf &&
+	/data/Compass/dev/valdezkm/software/vcftools/0.1.13/bin/vcf-subset -u -c {params.normal} {params.home}/{input.mutect_snp} > {params.normal}.mutect.snps.normal.vcf &&
 	# remove GT from mutect normal, python script will fail if FORMAT fields do not start with GT
 	python3 {params.mutect_GT} {params.normal}.mutect.snps.normal.vcf {params.normal}.mutect.snps.normal_noGT.vcf &&
 	# remove header from strelka indel vcfs

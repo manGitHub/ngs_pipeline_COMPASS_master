@@ -5,7 +5,6 @@
 # 
 # Usually slurm can translate the PBS varibles so no need to initialize the sbatch variables.
 #set -eo pipefail
-snakemake=/usr/local/apps/snakemake/7.3.7/bin/snakemake
 if [[ $time == 'd' ]]; then
 	export TIME="20160415"
 elif [[ $time == 'p' ]]; then
@@ -40,15 +39,16 @@ export SAMPLESHEET="$sheet_name"
 NOW=$runTime
 #export TIME=$(date +"%Y%m%d%H")
 export TMP="$NOW"
-if [[ `hostname` =~ "cn" ]] || [ `hostname` == 'biowulf.nih.gov' ]; then
-	#module load snakemake/3.5.5.nl
-	export HOST="biowulf.nih.gov"
+if [[ `hostname` =~ "cn" ]] || [ `hostname` == 'biowulf8.nih.gov' ]; then
+	module use --prepend /data/Compass/local/lmod/modulefiles
+	module load snakemake/7.7.0
+	export HOST="biowulf8.nih.gov"
 elif [[ `hostname` =~ "tghighmem" ]] || [[ `hostname` =~ "tgcompute" ]] || [ `hostname` == 'login01' ] ; then
 	#module load snakemake/3.5.5
 	export HOST="login01"
 else 
 	echo -e "Host `hostname` is not recognized\n"
-	echo -e "This pipeline is customized to run on biowulf.nih.gov or TGen Cluster @ KhanLab\n";
+	echo -e "This pipeline is customized to run on biowulf8.nih.gov or TGen Cluster @ KhanLab\n";
 	echo -e "If you would like to use it on another system, you have to change config/config_cluster.json and some hardcoded system dependencies\n";
 	exit;
 fi
@@ -65,10 +65,10 @@ SNAKEFILE=$NGS_PIPELINE/ngs_pipeline.rules
 cmd="--directory $WORK_DIR --snakefile $SNAKEFILE --configfile $SAM_CONFIG --jobname {params.rulename}.{jobid} --nolock  --ri -k -p  -r -j 3000 --resources DeFuse=25 --resources SIFT=8 --stats ngs_pipeline_${sheet_name}_${NOW}.stats -R RNASeq --latency-wait 120"
 #cmd="--directory $WORK_DIR --snakefile $SNAKEFILE --configfile $SAM_CONFIG --jobscript $NGS_PIPELINE/scripts/jobscript.sh --jobname {params.rulename}.{jobid} --nolock  --ri -k -p -T -r -j 3000 --resources DeFuse=25 --resources SIFT=8 --stats ngs_pipeline_${sheet_name}_${NOW}.stats -R RNASeq -O MergeFQ Compass_Pipeline RNASeq"
 umask 022
-if [ $HOST   == 'biowulf.nih.gov' ]; then
+if [ $HOST   == 'biowulf8.nih.gov' ]; then
 	echo "Host identified as $HOST"
 	echo "Variables are $cmd"
-	$snakemake $cmd --cluster "sbatch -o log/{params.rulename}.%j.o -e log/{params.rulename}.%j.e {params.batch}" >& ngs_pipeline_${sheet_name}_${NOW}.log
+	snakemake $cmd --cluster "sbatch -o log/{params.rulename}.%j.o -e log/{params.rulename}.%j.e {params.batch}" >& ngs_pipeline_${sheet_name}_${NOW}.log
 elif [ $HOST == 'login01' ]; then
 	echo "Host identified as $HOST"
 	echo "Variables are $cmd"

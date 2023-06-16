@@ -27,12 +27,10 @@ rule mixcr_RNASeq:
 	vdjtools = config['vdjtools']
     shell: """
     #######################
-    module load mixcr/{version}
-
     if [ -d "{wildcards.base}/{wildcards.TIME}/{wildcards.sample}/mixcr" ]; then rm -f {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/mixcr/*; fi
     cd {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/mixcr/
 
-    mixcr analyze shotgun -t ${{THREADS}} --report {wildcards.sample}.alignment.log --species hs --starting-material rna --only-productive {input.R[0]} {input.R[1]} {wildcards.sample}
+    /data/Compass/dev/valdezkm/software/mixcr/3.0.13/mixcr analyze shotgun -t ${{THREADS}} --report {wildcards.sample}.alignment.log --species hs --starting-material rna --only-productive {input.R[0]} {input.R[1]} {wildcards.sample}
 
     module load vdjtools/{params.vdjtools}
     java -Djava.io.tmpdir=${{LOCAL}} -jar $VDJ_JAR Convert -S mixcr {wildcards.sample}.clonotypes.ALL.txt convert

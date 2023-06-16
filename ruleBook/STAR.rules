@@ -61,7 +61,12 @@ rule STAR:
 	echo "STAR mapping completed"
 	mv -f {wildcards.sample}Chimeric.out.junction {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/{wildcards.sample}Chimeric.out.junction
 	mv -f {wildcards.sample}Aligned.toTranscriptome.out.bam {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/{wildcards.sample}.transcriptome.bam
-	module load picard/{params.picard}
+
+	PICARDJARPATH=/data/Compass/dev/valdezkm/software/picard/2.18.27
+	PICARD_JARPATH=/data/Compass/dev/valdezkm/software/picard/2.18.27
+	PICARDJAR=/data/Compass/dev/valdezkm/software/picard/2.18.27/picard.jar
+	PICARD_JAR=/data/Compass/dev/valdezkm/software/picard/2.18.27/picard.jar
+
 	java -Xmx${{MEM}}g -Djava.io.tmpdir=${{LOCAL}} -jar $PICARD_JAR AddOrReplaceReadGroups VALIDATION_STRINGENCY=SILENT INPUT={wildcards.sample}Aligned.sortedByCoord.out.bam OUTPUT={params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/{wildcards.sample}.star.bam SORT_ORDER=coordinate RGLB={wildcards.sample} RGPU={wildcards.sample} RGPL=ILLUMINA RGSM={wildcards.sample} RGCN=Compass
 	module load samtools/{params.samtools}
 	samtools index {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/{wildcards.sample}.star.bam
@@ -88,7 +93,6 @@ rule STAR_Fusion:
 	
         module load STAR-Fusion/{version}
 	module load samtools/{params.samtools}
-	module load perl
 	module load STAR/{params.STAR}
 	if [ -d "{params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/STAR-Fusion_results" ]; then rm -Rf {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/STAR-Fusion_results; fi
 	STAR-Fusion --genome_lib_dir {params.ctat_lib} -J {params.home}/{input.Junction} --CPU ${{THREADS}} --output_dir {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/STAR-Fusion_results

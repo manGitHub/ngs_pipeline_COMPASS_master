@@ -20,7 +20,7 @@ SAMPLESHEET=os.environ['SAMPLESHEET']
 configfile: NGS_PIPELINE +"/config/config_annotation.json"
 configfile: NGS_PIPELINE +"/config/config_common.json"
 configfile: NGS_PIPELINE +"/config/config_cluster.json"
-if HOST == 'biowulf.nih.gov':
+if HOST == 'biowulf8.nih.gov':
 	configfile: NGS_PIPELINE +"/config/config_common_biowulf.json"
 elif HOST == 'login01':
 	configfile: NGS_PIPELINE +"/config/config_common_tgen.json"
@@ -42,7 +42,7 @@ shell.prefix("""
 set -e -o pipefail
 module purge
 sleep 20s
-if [ {HOST} == 'biowulf.nih.gov' ]
+if [ {HOST} == 'biowulf8.nih.gov' ]
 	then
 		MEM=`echo "${{SLURM_MEM_PER_NODE}} / 1024 "|bc`
 		LOCAL="/lscratch/${{SLURM_JOBID}}/"
@@ -154,7 +154,7 @@ TARGET     += expand("{subject}/{TIME}/annotation/AnnotationInput.coding.rare.tx
 TARGET     += expand("{subject}/{TIME}/annotation/{subject}.Annotations.coding.rare.txt", TIME=TIME, subject=PATIENTS)
 TARGET     += expand("{subject}/{TIME}/qc/{subject}.config.{NOW}.txt", TIME=TIME, subject=PATIENTS, NOW=NOW)
 TARGET     += expand("{subject}/{TIME}/igv/session_{subject}.xml", TIME=TIME, subject=PATIENTS)
-TARGET      = ["{subject}/{TIME}/{sample}/qc/fastq_screen/{sample}_R2_screen.html".format(TIME=TIME, subject=SAMPLE_TO_SUBJECT[s], sample=s) for s in SAMPLES]
+TARGET     += ["{subject}/{TIME}/{sample}/qc/fastq_screen/{sample}_R2_screen.html".format(TIME=TIME, subject=SAMPLE_TO_SUBJECT[s], sample=s) for s in SAMPLES]
 
 if len(config['sample_references']) > 0:
 	for Tumor in config['sample_references']:
@@ -454,17 +454,16 @@ rule FASTQC:
 		batch     = config[config['host']]["job_fastqc"]
 	shell: """
 	#######################
-	module load fastqc/{version}
 	R1=`echo "{input.R}" |sed -e 's/ /\\n/g' |grep "_R1"`
 	R2=`echo "{input.R}" |sed -e 's/ /\\n/g' |grep "_R2"`
 
 	echo "Working on ${{R1}}"
-	zcat ${{R1}} |fastqc --extract -t ${{THREADS}} -o {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/ -d ${{LOCAL}} /dev/stdin
+	zcat ${{R1}} |/data/Compass/dev/valdezkm/software/fastqc/0.11.2/fastqc --extract -t ${{THREADS}} -o {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/ -d ${{LOCAL}} /dev/stdin
 	mv {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/stdin_fastqc.html {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/{wildcards.sample}_R1_fastqc.html
 	mv {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/stdin_fastqc      {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/{wildcards.sample}_R1_fastqc
 	mv {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/stdin_fastqc.zip  {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/{wildcards.sample}_R1_fastqc.zip
 	echo "Working on ${{R2}}"
-	zcat ${{R2}} |fastqc --extract -t ${{THREADS}} -o {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/ -d ${{LOCAL}} /dev/stdin
+	zcat ${{R2}} |/data/Compass/dev/valdezkm/software/fastqc/0.11.2/fastqc --extract -t ${{THREADS}} -o {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/ -d ${{LOCAL}} /dev/stdin
 	mv {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/stdin_fastqc.html {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/{wildcards.sample}_R2_fastqc.html
 	mv {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/stdin_fastqc      {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/{wildcards.sample}_R2_fastqc
 	mv {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/stdin_fastqc.zip  {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/{wildcards.sample}_R2_fastqc.zip
@@ -523,7 +522,11 @@ rule BWA:
 	#######################
 	module load bwa/{version}
 	module load samtools/{params.samtools}
-        module load picard/{params.picard}
+	PICARDJARPATH=/data/Compass/dev/valdezkm/software/picard/2.18.27
+	PICARD_JARPATH=/data/Compass/dev/valdezkm/software/picard/2.18.27
+	PICARDJAR=/data/Compass/dev/valdezkm/software/picard/2.18.27/picard.jar
+	PICARD_JAR=/data/Compass/dev/valdezkm/software/picard/2.18.27/picard.jar
+
 	R1=`echo "{input.R}" |sed -e 's/ /\\n/g' |grep "_R1"`
 	R2=`echo "{input.R}" |sed -e 's/ /\\n/g' |grep "_R2"`
 	
@@ -704,9 +707,8 @@ rule HotSpotCoverage:
 	shell: """
 	#######################
 	module load samtools/{params.samtools}
-	module load bedtools/{version}
-	slopBed -i {input.interval} -g {input.genome} -b 50 >${{LOCAL}}/Region.bed
-	samtools view -hF 0x400 -q 30 -L ${{LOCAL}}/Region.bed {input.bam} | samtools view -ShF 0x4 - | samtools view -SuF 0x200 - | bedtools coverage -abam - -b {input.interval} >{output}
+	/data/Compass/dev/valdezkm/software/bedtools/2.22.0/bin/slopBed -i {input.interval} -g {input.genome} -b 50 >${{LOCAL}}/Region.bed
+	samtools view -hF 0x400 -q 30 -L ${{LOCAL}}/Region.bed {input.bam} | samtools view -ShF 0x4 - | samtools view -SuF 0x200 - | /data/Compass/dev/valdezkm/software/bedtools/2.22.0/bin/bedtools coverage -abam - -b {input.interval} >{output}
 	#######################
 	"""
 ############
@@ -725,8 +727,7 @@ rule Coverage:
 		batch    = config[config['host']]["job_bedtools"]
 	shell: """
 	#######################
-	module load bedtools/{version}
-	bedtools coverage -abam {input.bam} -b {input.interval} -hist |grep "^all" > {output}
+	/data/Compass/dev/valdezkm/software/bedtools/2.22.0/bin/bedtools coverage -abam {input.bam} -b {input.interval} -hist |grep "^all" > {output}
 	#######################
 	"""
 ############
@@ -774,7 +775,11 @@ rule Picard_MarkDup:
 		samtools  = config["samtools"]
 	shell: """
 	#######################
-	module load picard/{version}
+	PICARDJARPATH=/data/Compass/dev/valdezkm/software/picard/2.18.27
+	PICARD_JARPATH=/data/Compass/dev/valdezkm/software/picard/2.18.27
+	PICARDJAR=/data/Compass/dev/valdezkm/software/picard/2.18.27/picard.jar
+	PICARD_JAR=/data/Compass/dev/valdezkm/software/picard/2.18.27/picard.jar
+
 	java -Xmx${{MEM}}g -Djava.io.tmpdir=${{LOCAL}} -jar $PICARD_JAR MarkDuplicates AS=true M={output.metrics} I={input.bam} O={output.bam} REMOVE_DUPLICATES=false VALIDATION_STRINGENCY=SILENT
 	module load samtools/{params.samtools}
 	samtools index {output.bam}
@@ -897,10 +902,9 @@ rule Strelka:
         ${{LOCAL}}/manta/runWorkflow.py
         configureStrelkaSomaticWorkflow.py --normalBam={input[2]} --tumorBam={input[0]} --referenceFasta={input.strelkaRef} --config={params.config} --indelCandidates ${{LOCAL}}/manta/results/variants/candidateSmallIndels.vcf.gz --runDir=${{LOCAL}}/strelka --exome
         ${{LOCAL}}/strelka/runWorkflow.py -m local 
-        module load vcftools/{params.vcftools}
-	vcftools --gzvcf ${{LOCAL}}/strelka/results/variants/somatic.snvs.vcf.gz --bed {input.interval} --out {output.snps} --recode --keep-INFO-all
+	/data/Compass/dev/valdezkm/software/vcftools/0.1.13/bin/vcftools --gzvcf ${{LOCAL}}/strelka/results/variants/somatic.snvs.vcf.gz --bed {input.interval} --out {output.snps} --recode --keep-INFO-all
 	python3 {params.calcVAF} {output.snps}.recode.vcf {output.snps}
-	vcftools --gzvcf ${{LOCAL}}/strelka/results/variants/somatic.indels.vcf.gz --bed {input.interval}  --out {output.indels} --recode --keep-INFO-all
+	/data/Compass/dev/valdezkm/software/vcftools/0.1.13/bin/vcftools --gzvcf ${{LOCAL}}/strelka/results/variants/somatic.indels.vcf.gz --bed {input.interval}  --out {output.indels} --recode --keep-INFO-all
 	python3 {params.calcVAF} {output.indels}.recode.vcf {output.indels}
 	rm {output.snps}.recode.vcf {output.indels}.recode.vcf
 	NORMAL=`basename {input[2]} .bwa.final.bam`
@@ -927,7 +931,19 @@ rule SNPEff:
 		annovar       =config["annovar"]
 	shell: """
 	#######################
-	module load snpEff/{version}
+	JAVA_HOME=/data/Compass/dev/valdezkm/software/Java/jdk1.7.0_25
+	PATH=/data/Compass/dev/valdezkm/software/Java/jdk1.7.0_25/bin:$PATH
+	LD_LIBRARY_PATH=/data/Compass/dev/valdezkm/software/Java/jdk1.7.0_25/lib:$LD_LIBRARY_PATH
+
+	PATH=/data/Compass/dev/valdezkm/software/snpEff/4.1c:$PATH
+	PATH=/data/Compass/dev/valdezkm/software/snpEff/4.1c/scripts:$PATH
+	SNPEFFHOME=/data/Compass/dev/valdezkm/software/snpEff/4.1c
+	SNPEFF_JAR=/data/Compass/dev/valdezkm/software/snpEff/4.1c/snpEff.jar
+	SNPSIFT_JAR=/data/Compass/dev/valdezkm/software/snpEff/4.1c/SnpSift.jar
+	SNPEFF_JARPATH=/data/Compass/dev/valdezkm/software/snpEff/4.1c
+	SNPEFF_HOME=/data/Compass/dev/valdezkm/software/snpEff/4.1c
+	SNPEFF_EXAMPLES=/data/Compass/dev/valdezkm/software/snpEff/4.1c/examples
+
 	java -Xmx${{MEM}}g -Djava.io.tmpdir=${{LOCAL}} -jar $SNPEFF_JARPATH/SnpSift.jar dbnsfp -c {params.snpEff_config} -a {input.vcf} | java -Xmx${{MEM}}g -jar $SNPEFF_JARPATH/snpEff.jar -t -canon {params.snpEff_genome} > {output.eff}
 	#######################
 	"""
@@ -946,7 +962,10 @@ rule VCF2TXT:
 		annovar       =config["annovar"]
 	shell: """
 	#######################
-	module load annovar/{params.annovar}
+	PATH=/data/Compass/dev/valdezkm/software/annovar/2018-04-16:$PATH
+	ANNOVAR_HOME=/data/Compass/dev/valdezkm/software/annovar/2018-04-16
+	ANNOVAR_DATA=/fdb/annovar/current
+	ANNOVAR_DATA_CURRENT=/fdb/annovar/current
 	perl {input.vcf2txt} {input.eff} ${{LOCAL}} >{output.txt}
 	#######################
 	"""
@@ -968,7 +987,10 @@ rule FormatInput:
 		fAEV       = NGS_PIPELINE + "/scripts/findAlreadyExistingVariants.pl"
 	shell: """
 	#######################
-	module load annovar/{version}
+	PATH=/data/Compass/dev/valdezkm/software/annovar/2018-04-16:$PATH
+	ANNOVAR_HOME=/data/Compass/dev/valdezkm/software/annovar/2018-04-16
+	ANNOVAR_DATA=/fdb/annovar/current
+	ANNOVAR_DATA_CURRENT=/fdb/annovar/current
 	export LC_ALL=C
 	cut -f 1-5 {input.txtFiles} {input.hotspot} |sort |uniq > {wildcards.subject}/{TIME}/annotation/AnnotationInput
 	perl {input.convertor} {wildcards.subject}/{TIME}/annotation/AnnotationInput

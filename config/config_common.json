@@ -1,5 +1,5 @@
 {
-	"pipeline_version"	: "4.2.1",
+	"pipeline_version"	: "v5.0.0dev",
 	"mail"			: "-c manoj.tyagi@nih.gov -c kristin.valdez@nih.gov -c jung.kim3@nih.gov -c yujin.lee@nih.gov",
         "mails"                 : "-c kristin.valdez@nih.gov",
 	"platform"		: "Illumina",
@@ -45,7 +45,7 @@
 	"bowtie2"		: "2-2.5.1",
 	"igvtools"		: "2.3.31",
 	"cufflinks"		: "2.2.1_patched",
-	"fusioncatcher"		: "1.00",
+	"fusioncatcher"		: "1.33",
 	"defuse"		: "0.7.0",
 	"pypy"			: "2.7-7.3.5",
 	"verifybamid"		: "1.1.3",

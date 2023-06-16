@@ -1,6 +1,6 @@
 {
 	"group"			: "Compass",
-	"host"			: "biowulf.nih.gov",
+	"host"			: "biowulf8.nih.gov",
 	"annovar_data"		: "/data/Compass/Ref/hg19/annotation/",
 	"genotypeDest"		: "/data/khanlab/projects/Genotyping/GenotypeFiles/",
 	"bwaIndex"		: "/data/Compass/Ref/hg19/IndexLP/bwa_0.7.17_gencode/hg19",
@@ -34,11 +34,11 @@
 	"HLA"			: "/data/Compass/Ref/hg19/HLA/",
 	"fastq_screen-config"	: "/data/Compass/Ref/hg19/FastqScreen_v0152/fastq_screen.conf",
 	"version_R"		: "3.4",
-	"version_R_mutSigs"	: "4.0.0",
+	"version_R_mutSigs"	: "4.0",
 	"version_python"	: "3.7",
         "version_old_python"    : "2.7",
 	"version_blast"		: "2.5.0+",
-	"VEP"			: "86",
+	"VEP"			: "89",
 	"IEDB"			: "/opt/iedb",
 	"target_intervals"	:{
 		"wholegenome"		: "/data/Compass/Ref/hg19/design/WholeGenome.target.hg19.merged.bed",
@@ -122,7 +122,7 @@
 		"seqcapez.hu.ex.v3"	: "/data/Compass/Ref/hg19/cnvkit/seqcapez.hu.ex.v3.hg19.cnn"
 	},
 	"mantis_bed"		: "/data/Compass/Ref/hg19/design/MANTIS_target_loci.bed",
-	"R_library"		: "/data/Compass/Tools/R_ngs_libraries/4.0/library",
+	"R_library"		: "/data/Compass/local/apps/R/4.0/site-library",
 	"conpair_marker"	: "/data/Compass/Ref/hg19/verifyBamID/GRCh37.autosomes.phase3_shapeit2_mvncall_integrated.20130502.SNV.genotype.sselect_v4_MAF_0.4_LD_0.8.bed",
 	"cnvkit_access"		: "/data/Compass/Ref/hg19/access-5k-mappable.hg19.bed",
 	"1000G_phase1"		: "/data/Compass/Ref/hg19/Gencode_human_release_30_GRCh37/GATK_resources/1000G_phase1.indels.hg19.vcf",

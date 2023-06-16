@@ -33,7 +33,7 @@ rule consolidated_QC:
         #######################
         module load python/{params.python}
         module load samtools/{version}
-        module load bedtools/{params.bedtools}
+        PATH=/data/Compass/dev/valdezkm/software/bedtools/2.22.0/bin:$PATH
         python {input.tool} {input.bam} {input.target_intervals} ${{LOCAL}} {wildcards.base} {wildcards.sample}  "{params.diagnosis}" > {output}.tmp
 	perl   {input.tool_perl} {wildcards.sample} {input.hsMatrix} {output}.tmp  {output}
 	rm -rf {output}.tmp

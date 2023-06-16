@@ -73,10 +73,9 @@ rule Sequenza_geneAnnot:
         shell: """
         #######################
         set +eo pipefail
-        module load bedtools/{version}
-        module load python/{params.python}
+        PATH=/data/Compass/dev/valdezkm/software/bedtools/2.22.0/bin:$PATH
         
-        python {input.py_script} {input.file} {input.interval} {input.geneList} {params.segment_1} {params.py_intersection1} {params.result_temp1} {params.gene_seperated_file} {params.py_intersection2} {params.final_temp} {output.txt} {output.aggregate}
+        python3 {input.py_script} {input.file} {input.interval} {input.geneList} {params.segment_1} {params.py_intersection1} {params.result_temp1} {params.gene_seperated_file} {params.py_intersection2} {params.final_temp} {output.txt} {output.aggregate}
         rm -rf {params.segment_1} {params.py_intersection1} {params.result_temp1} {params.gene_seperated_file} {params.py_intersection2} {params.final_temp}        
    
         #######################

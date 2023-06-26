@@ -62,10 +62,10 @@ rule STAR:
 	mv -f {wildcards.sample}Chimeric.out.junction {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/{wildcards.sample}Chimeric.out.junction
 	mv -f {wildcards.sample}Aligned.toTranscriptome.out.bam {params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/{wildcards.sample}.transcriptome.bam
 
-	PICARDJARPATH=/data/Compass/dev/valdezkm/software/picard/2.18.27
-	PICARD_JARPATH=/data/Compass/dev/valdezkm/software/picard/2.18.27
-	PICARDJAR=/data/Compass/dev/valdezkm/software/picard/2.18.27/picard.jar
-	PICARD_JAR=/data/Compass/dev/valdezkm/software/picard/2.18.27/picard.jar
+	PICARDJARPATH=/data/Compass/local/software/picard/2.18.27
+	PICARD_JARPATH=/data/Compass/local/software/picard/2.18.27
+	PICARDJAR=/data/Compass/local/software/picard/2.18.27/picard.jar
+	PICARD_JAR=/data/Compass/local/software/picard/2.18.27/picard.jar
 
 	java -Xmx${{MEM}}g -Djava.io.tmpdir=${{LOCAL}} -jar $PICARD_JAR AddOrReplaceReadGroups VALIDATION_STRINGENCY=SILENT INPUT={wildcards.sample}Aligned.sortedByCoord.out.bam OUTPUT={params.home}/{wildcards.subject}/{TIME}/{wildcards.sample}/{wildcards.sample}.star.bam SORT_ORDER=coordinate RGLB={wildcards.sample} RGPU={wildcards.sample} RGPL=ILLUMINA RGSM={wildcards.sample} RGCN=Compass
 	module load samtools/{params.samtools}

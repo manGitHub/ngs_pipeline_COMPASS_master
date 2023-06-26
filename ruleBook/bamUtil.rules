@@ -21,7 +21,7 @@ rule bamUtil:
 	shell: """
 	#######################
 	module load samtools/{params.samtools}
-	/data/Compass/dev/valdezkm/software/bamutil/bin/bam squeeze --in {input.bam} --out {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/{wildcards.sample}.{wildcards.aligner}.final.squeeze.bam --refFile {input.ref} --rmTags "PG:Z;RG:Z;BI:Z;BD:Z"
+	/data/Compass/local/software/bamutil/bin/bam squeeze --in {input.bam} --out {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/{wildcards.sample}.{wildcards.aligner}.final.squeeze.bam --refFile {input.ref} --rmTags "PG:Z;RG:Z;BI:Z;BD:Z"
 	samtools index {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/{wildcards.sample}.{wildcards.aligner}.final.squeeze.bam
 	touch {output}
 	#######################

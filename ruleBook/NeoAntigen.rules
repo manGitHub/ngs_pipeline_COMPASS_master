@@ -47,7 +47,7 @@ rule seq2HLA:
 	shell: """
 	#######################
 	module load python/{params.python} R/{params.R}
-	PATH=/data/Compass/dev/valdezkm/software/bowtie/1.1.1/bin:$PATH
+	PATH=/data/Compass/local/software/bowtie/1.1.1/bin:$PATH
 	python {input.script} {params.HLA}/seq2HLA/ -1 {input.R[0]} -2 {input.R[1]}  -p 2 -r {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/HLA/seq2HLA/{wildcards.sample}
 	#######################
 	"""

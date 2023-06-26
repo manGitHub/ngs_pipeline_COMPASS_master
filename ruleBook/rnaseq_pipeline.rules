@@ -172,7 +172,7 @@ rule CoveragE:
 		batch    = config[config['host']]["job_bedtools"]
 	shell: """
 	#######################
-	/data/Compass/dev/valdezkm/software/bedtools/2.22.0/bin/bedtools coverage -abam {input.bam} -b {input.interval} -hist |grep "^all" > {output}
+	/data/Compass/local/software/bedtools/2.22.0/bin/bedtools coverage -abam {input.bam} -b {input.interval} -hist |grep "^all" > {output}
 	#######################
 	"""
 ############

@@ -20,7 +20,7 @@ else{
 	chomp $NGS_PIPELINE;
 }
 
-if (`hostname` =~ /cn/ or `hostname` =~ /biowulf8.nih.gov/){
+if (`hostname` =~ /cn/ or `hostname` =~ /biowulf.nih.gov/){
 	$dataDir="/data/khanlab/projects/DATA/";
 }
 elsif(`hostname` =~ /tghighmem/ or `hostname` =~ /tgcompute/ or `hostname` =~ /login01/){
@@ -79,7 +79,7 @@ my $NOW=`echo \$(date +"%Y%m%d_%H%M%S")`;
 chomp $NOW;
 my $jobid;
 my $sheet_name = basename($sheet, ".json");
-if (`hostname` =~ /cn/ or `hostname` =~ /biowulf8.nih.gov/){
+if (`hostname` =~ /cn/ or `hostname` =~ /biowulf.nih.gov/){
 	if ($dryrun){
 		my $cmd = "(
 		export TMP=$NOW
@@ -88,7 +88,7 @@ if (`hostname` =~ /cn/ or `hostname` =~ /biowulf8.nih.gov/){
 		export WORK_DIR=$workDir
 		export DATA_DIR=$dataDir
 		export ACT_DIR=\"/Actionable/\"
-		export HOST=\"biowulf8.nih.gov\"
+		export HOST=\"biowulf.nih.gov\"
 		export SAMPLESHEET=$sheet_name
 		SNAKEFILE=$NGS_PIPELINE/ngs_pipeline.rules
 		SAM_CONFIG=$sheet
@@ -103,7 +103,7 @@ if (`hostname` =~ /cn/ or `hostname` =~ /biowulf8.nih.gov/){
 	else{
 		`mkdir -p "$workDir/log/"`;
 		`chmod g+rw "$workDir/log"`;
-		$jobid = `sbatch -e $workDir/log/ngs-pipeline.%j.e -o $workDir/log/ngs-pipeline.%j.o --export=time=$mode,ngs=$NGS_PIPELINE,dataDir=$dataDir,workDir=$workDir,sheet=$sheet,runTime=$NOW --cpus-per-task=1 --partition=rhel8 --time=01-12:00:00 $NGS_PIPELINE/submit_snakemake.sh`;
+		$jobid = `sbatch -e $workDir/log/ngs-pipeline.%j.e -o $workDir/log/ngs-pipeline.%j.o --export=time=$mode,ngs=$NGS_PIPELINE,dataDir=$dataDir,workDir=$workDir,sheet=$sheet,runTime=$NOW --cpus-per-task=1 --partition=ccr,norm --time=01-12:00:00 $NGS_PIPELINE/submit_snakemake.sh`;
 	}
 }
 elsif(`hostname` =~ /tghighmem/ or `hostname` =~ /tgcompute/ or `hostname` =~ /login01/){

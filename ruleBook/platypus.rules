@@ -17,18 +17,18 @@ rule PLATYPUS:
 	#######################
 	module load platypus/{version}
 
-	JAVA_HOME=/data/Compass/dev/valdezkm/software/Java/jdk1.7.0_25
-	PATH=/data/Compass/dev/valdezkm/software/Java/jdk1.7.0_25/bin:$PATH
-	LD_LIBRARY_PATH=/data/Compass/dev/valdezkm/software/Java/jdk1.7.0_25/lib:$LD_LIBRARY_PATH
+	JAVA_HOME=/data/Compass/local/software/Java/jdk1.7.0_25
+	PATH=/data/Compass/local/software/Java/jdk1.7.0_25/bin:$PATH
+	LD_LIBRARY_PATH=/data/Compass/local/software/Java/jdk1.7.0_25/lib:$LD_LIBRARY_PATH
 
-	PATH=/data/Compass/dev/valdezkm/software/snpEff/4.1c:$PATH
-	PATH=/data/Compass/dev/valdezkm/software/snpEff/4.1c/scripts:$PATH
-	SNPEFFHOME=/data/Compass/dev/valdezkm/software/snpEff/4.1c
-	SNPEFF_JAR=/data/Compass/dev/valdezkm/software/snpEff/4.1c/snpEff.jar
-	SNPSIFT_JAR=/data/Compass/dev/valdezkm/software/snpEff/4.1c/SnpSift.jar
-	SNPEFF_JARPATH=/data/Compass/dev/valdezkm/software/snpEff/4.1c
-	SNPEFF_HOME=/data/Compass/dev/valdezkm/software/snpEff/4.1c
-	SNPEFF_EXAMPLES=/data/Compass/dev/valdezkm/software/snpEff/4.1c/examples
+	PATH=/data/Compass/local/software/snpEff/4.1c:$PATH
+	PATH=/data/Compass/local/software/snpEff/4.1c/scripts:$PATH
+	SNPEFFHOME=/data/Compass/local/software/snpEff/4.1c
+	SNPEFF_JAR=/data/Compass/local/software/snpEff/4.1c/snpEff.jar
+	SNPSIFT_JAR=/data/Compass/local/software/snpEff/4.1c/SnpSift.jar
+	SNPEFF_JARPATH=/data/Compass/local/software/snpEff/4.1c
+	SNPEFF_HOME=/data/Compass/local/software/snpEff/4.1c
+	SNPEFF_EXAMPLES=/data/Compass/local/software/snpEff/4.1c/examples
 
 	platypus callVariants --nCPU=${{THREADS}} --bufferSize=1000000 --maxReads=100000000 --bamFiles={input.bam} --regions={input.interval} --output=${{LOCAL}}/{wildcards.sample}.Platypus.raw.vcf --refFile={input.ref}  
 	java -Xmx${{MEM}}g -Djava.io.tmpdir=${{LOCAL}} -jar $SNPEFF_JARPATH/SnpSift.jar filter "((FILTER = 'PASS'))" ${{LOCAL}}/{wildcards.sample}.Platypus.raw.vcf > {output.vcf}

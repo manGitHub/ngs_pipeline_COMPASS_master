@@ -37,10 +37,10 @@ rule HSMetrics:
 		batch	= config[config['host']]["job_hsMetrics"],
 	shell: """
 	#######################
-    PICARDJARPATH=/data/Compass/dev/valdezkm/software/picard/2.18.27
-    PICARD_JARPATH=/data/Compass/dev/valdezkm/software/picard/2.18.27
-    PICARDJAR=/data/Compass/dev/valdezkm/software/picard/2.18.27/picard.jar
-    PICARD_JAR=/data/Compass/dev/valdezkm/software/picard/2.18.27/picard.jar
+    PICARDJARPATH=/data/Compass/local/software/picard/2.18.27
+    PICARD_JARPATH=/data/Compass/local/software/picard/2.18.27
+    PICARDJAR=/data/Compass/local/software/picard/2.18.27/picard.jar
+    PICARD_JAR=/data/Compass/local/software/picard/2.18.27/picard.jar
 
 	java -Xmx${{MEM}}g -Djava.io.tmpdir=${{LOCAL}} -jar $PICARD_JAR CollectHsMetrics BAIT_INTERVALS={input.probe_intervals} TARGET_INTERVALS={input.target_intervals} INPUT={input.bam} OUTPUT={output} METRIC_ACCUMULATION_LEVEL=ALL_READS REFERENCE_SEQUENCE={params.reference} QUIET=true  VALIDATION_STRINGENCY=SILENT
 	#######################

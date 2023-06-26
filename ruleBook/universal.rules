@@ -35,10 +35,10 @@ rule BAM2TDF:
 		batch           = config[config['host']]['job_igvtools']
 	shell:  """
 	#######################
-    PATH=/data/Compass/dev/valdezkm/software/igvtools/2.3.31:$PATH
-    IGVTOOLSHOME=/data/Compass/dev/valdezkm/software/igvtools/2.3.31
-    IGVTOOLS_JAR=/data/Compass/dev/valdezkm/software/igvtools/2.3.31/igvtools.jar
-    IGVTOOLS_JARPATH=/data/Compass/dev/valdezkm/software/igvtools/2.3.31
+    PATH=/data/Compass/local/software/igvtools/2.3.31:$PATH
+    IGVTOOLSHOME=/data/Compass/local/software/igvtools/2.3.31
+    IGVTOOLS_JAR=/data/Compass/local/software/igvtools/2.3.31/igvtools.jar
+    IGVTOOLS_JARPATH=/data/Compass/local/software/igvtools/2.3.31
 
 	cd ${{LOCAL}}
 	java -Xmx${{MEM}}g -Djava.io.tmpdir=${{LOCAL}} -jar $IGVTOOLSHOME/igvtools.jar count {WORK_DIR}/{input.bam} {WORK_DIR}/{output} {params.ref}

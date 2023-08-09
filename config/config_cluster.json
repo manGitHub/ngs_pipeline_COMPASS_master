@@ -49,7 +49,8 @@
 		"job_igvtools"   : "--partition=norm,ccr --time=05:00:00 --mem=10G  --cpus-per-task=1   --gres=lscratch:05",
 		"job_novoalign"  : "--partition=norm,ccr --time=20:00:00 --mem=60G  --cpus-per-task=32  --gres=lscratch:02",
 		"job_deFuse"     : "--partition=norm,ccr --time=20:00:00 --mem=100G --cpus-per-task=30  --gres=lscratch:400",
-                "job_mixcr"      : "--partition=norm,ccr --time=08:00:00 --mem=25G  --cpus-per-task=16"
+                "job_mixcr"      : "--partition=norm,ccr --time=08:00:00 --mem=25G  --cpus-per-task=16",
+                "job_optitype"   : "--partition=norm,ccr --time=6:00:00 --mem=100G  --cpus-per-task=16"
 	},
 	"login01":{
                 "job_default"    : "--partition=batch  --mem=01G  --cpus-per-task=1  ",

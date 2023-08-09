@@ -3,18 +3,20 @@ if 'subject' in config:
 	for subject in config['subject']:
 		for library in config['subject'][subject]:
 			if config['sample_captures'][library] not in config['Panel_List']:
-				TARGET    += [subject+"/"+TIME+"/"+library+"/HLA/seq2HLA/"+library+"-ClassI.HLAgenotype4digits"]
-				TARGET    += [subject+"/"+TIME+"/"+library+"/HLA/HLAminer/HLAminer_HPTASR.csv"]
+#				TARGET    += [subject+"/"+TIME+"/"+library+"/HLA/seq2HLA/"+library+"-ClassI.HLAgenotype4digits"] stopped Aug 2023
+#				TARGET    += [subject+"/"+TIME+"/"+library+"/HLA/HLAminer/HLAminer_HPTASR.csv"]	stopped Aug 2023
 				TARGET    += [subject+"/"+TIME+"/"+library+"/HLA/"+library+".Calls.txt"]
+				TARGET	  += [subject+"/"+TIME+"/"+library+"/HLA/OptiType/"+library+"_result.tsv"]
+				TARGET    += [subject+"/"+TIME+"/"+library+"/HLA/HLA-HD/"+library+"_final.result.txt"]
 if 'sample_references' in config:
 	if len(config['sample_references']) > 0:
 		for Tumor in config['sample_references']:
 			for Normal in config['sample_references'][Tumor]:
-				seq2HLA    = "{subject}/{TIME}/{sample}/HLA/seq2HLA/{sample}-ClassI.HLAgenotype4digits".format(TIME=TIME, subject=SAMPLE_TO_SUBJECT[Normal], sample=Normal)
-				HLAminer   = "{subject}/{TIME}/{sample}/HLA/HLAminer/HLAminer_HPTASR.csv".format(TIME=TIME, subject=SAMPLE_TO_SUBJECT[Normal], sample=Normal)
+				OptiType    = "{subject}/{TIME}/{sample}/HLA/OptiType/{sample}_result.tsv".format(TIME=TIME, subject=SAMPLE_TO_SUBJECT[Normal], sample=Normal)
+				HLA_HD   = "{subject}/{TIME}/{sample}/HLA/HLA-HD/{sample}_final.result.txt".format(TIME=TIME, subject=SAMPLE_TO_SUBJECT[Normal], sample=Normal)
 				if config['sample_captures'][Tumor] not in config['Panel_List']:
 					# any output which is desired on all somatic libraries but Panel goes here, the list of panel captures should be maintained in the Panel_List in config file
-					HLA[Tumor] = [seq2HLA, HLAminer]
+					HLA[Tumor] = [OptiType, HLA_HD]
 	for sample in config['sample_references'].keys():
 		subject=SAMPLE_TO_SUBJECT[sample]
 		if config['sample_captures'][sample] not in config['Panel_List']:
@@ -23,8 +25,10 @@ if 'sample_references' in config:
 if 'RNASeq' in config:
 	for subject  in config['RNASeq'].keys():
 		for sample in SAM_RNASEQ[subject]:
-			TARGET    +=  [subject+"/"+TIME+"/"+sample+"/HLA/seq2HLA/"+sample+"-ClassI.HLAgenotype4digits"]
-			TARGET    +=  [subject+"/"+TIME+"/"+sample+"/HLA/HLAminer/HLAminer_HPTASR.csv"]
+#			TARGET    +=  [subject+"/"+TIME+"/"+sample+"/HLA/seq2HLA/"+sample+"-ClassI.HLAgenotype4digits"] stopped Aug 2023
+#			TARGET    +=  [subject+"/"+TIME+"/"+sample+"/HLA/HLAminer/HLAminer_HPTASR.csv"] stopped Aug 2023
+			TARGET    += [subject+"/"+TIME+"/"+sample+"/HLA/OptiType/"+sample+"_result.tsv"]
+			TARGET    += [subject+"/"+TIME+"/"+sample+"/HLA/HLA-HD/"+sample+"_final.result.txt"]
 			TARGET    +=  [subject+"/"+TIME+"/"+sample+"/HLA/"+sample+".Calls.txt"]
 
 ############
@@ -79,22 +83,77 @@ rule HLAminer:
 	#######################
 	"""
 ############
+#       OptiType
+############
+rule OptiType:
+	input:
+		R=lambda wildcards: FQ[wildcards.sample]
+	output:
+		"{base}/{TIME}/{sample}/HLA/OptiType/{sample}_result.tsv"
+	version:
+		config["optitype"]
+	params:
+		rulename="OptiType",
+		batch	=config[config['host']]["job_optitype"],
+		opti    =config['optitype_config'],
+		type	=lambda wildcards: config['sample_type'][wildcards.sample]
+	shell: """
+	#######################
+	module load OptiType/{version}
+	if [ {params.type} == 'RNAseq' ]; then
+	OptiTypePipeline.py -i {input.R[0]} {input.R[1]} --rna -v -o {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/HLA/OptiType/ -c {params.opti} --prefix {wildcards.sample}
+	else
+        OptiTypePipeline.py -i {input.R[0]} {input.R[1]} --dna -v -o {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/HLA/OptiType/ -c {params.opti} --prefix {wildcards.sample}
+	fi
+	#######################
+	"""
+############
+#       HLA-HD
+############
+rule HLA_HD:
+	input:
+		R=lambda wildcards: FQ[wildcards.sample]
+	output:
+		"{base}/{TIME}/{sample}/HLA/HLA-HD/{sample}_final.result.txt"
+	version:
+		config["bowtie2"]
+	params:
+		rulename="HLA_HD",
+		batch	=config[config['host']]["job_arriba"],
+		path	=config["hla-hd_path"],
+		freq	=config["freq_data"],
+		dict	=config["dictionary"],
+		split	=config["gene_split"],
+		sam	=config["samtools_new"],
+		home     = WORK_DIR
+	shell: """
+	#######################
+	export PATH={params.path}:$PATH
+	module load bowtie/{version} samtools/{params.sam}
+	cd ${{LOCAL}}/
+	gunzip -c {input.R[0]} > {wildcards.sample}_R1.fastq
+	gunzip -c {input.R[1]} > {wildcards.sample}_R2.fastq
+	hlahd.sh -t $SLURM_CPUS_PER_TASK -m 70 -f {params.freq} {wildcards.sample}_R1.fastq {wildcards.sample}_R2.fastq {params.split} {params.dict} {wildcards.sample} .
+	mv {wildcards.sample}/result/{wildcards.sample}_final.result.txt {params.home}/{wildcards.base}/{wildcards.TIME}/{wildcards.sample}/HLA/HLA-HD/
+	#######################
+	"""
+############
 ##       MergeHLA Calls
 #############
 rule MergeHLA:
 	input:
-		A="{base}/{TIME}/{sample}/HLA/HLAminer/HLAminer_HPTASR.csv",
-		B="{base}/{TIME}/{sample}/HLA/seq2HLA/{sample}-ClassI.HLAgenotype4digits",
+		A="{base}/{TIME}/{sample}/HLA/HLA-HD/{sample}_final.result.txt",
+		B="{base}/{TIME}/{sample}/HLA/OptiType/{sample}_result.tsv",
 	output:
 		"{base}/{TIME}/{sample}/HLA/{sample}.Calls.txt"
 	params:
 		rulename = "MergeHLA",
-		Tool=NGS_PIPELINE + "/scripts/consensusHLA.pl",
+		Tool=NGS_PIPELINE + "/scripts/consensusHLA.py",
 		batch    = config[config['host']]["job_default"]
 	shell: """
 	#######################
 	export LC_ALL=C
-	perl {params.Tool} {input.B} {input.A} | sort > {output}	
+	python3 {params.Tool} {input.B} {input.A} {output}	
 	#######################
 	"""
 ############
@@ -112,7 +171,7 @@ rule VEP:
 	params:
 		rulename = "VEP",
 		VEP	 = config['VEP'],
-		merge=NGS_PIPELINE + "/scripts/consensusHLA.pl",
+		merge=NGS_PIPELINE + "/scripts/consensusHLA.py",
 		normal	 = lambda wildcards: config['sample_references'][wildcards.sample][0],
 		batch    = config[config['host']]["job_VEP"],
 	shell: """
@@ -123,7 +182,8 @@ rule VEP:
 	vep -i {output.vcf}.tmp --plugin Downstream --plugin Wildtype --terms SO --offline --cache --dir_cache $VEPCACHEDIR --assembly GRCh37 --output_file {output.vcf} --vcf --force_overwrite
 	rm -rf {output.vcf}.tmp
 	export LC_ALL=C
-	perl {params.merge} {input.HLA[0]} {input.HLA[1]} | sort > {wildcards.base}/{wildcards.TIME}/{params.normal}/HLA/{params.normal}.Calls.txt
+#	Removed aug 2023 bc this is a duplicate of mergeHLA rule:
+#	python3 {params.merge} {input.HLA[0]} {input.HLA[1]} {wildcards.base}/{wildcards.TIME}/{params.normal}/HLA/{params.normal}.Calls.txt
 	#######################
 	"""
 ############

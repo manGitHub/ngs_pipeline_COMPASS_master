@@ -1,5 +1,5 @@
 {
-	"pipeline_version"	: "v5.1.0",
+	"pipeline_version"	: "v5.1.0dev",
 	"mail"			: "-c manoj.tyagi@nih.gov -c kristin.valdez@nih.gov -c jung.kim3@nih.gov -c yujin.lee@nih.gov -c rob.schultz@nih.gov",
         "mails"                 : "-c kristin.valdez@nih.gov",
 	"platform"		: "Illumina",
@@ -50,7 +50,7 @@
 	"pypy"			: "2.7-7.3.5",
 	"verifybamid"		: "1.1.3",
 	"conpair"		: "0.2",
-	"cnvkit"		: "0.9.3",
+	"cnvkit"		: "0.9.9",
 	"pvacseq"		: "1.3.5",
 	"mixcr"			: "3.0.13",
 	"vdjtools"		: "1.2.1",

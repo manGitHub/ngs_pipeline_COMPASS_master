@@ -119,7 +119,7 @@ rule HLA_HD:
 		config["bowtie2"]
 	params:
 		rulename="HLA_HD",
-		batch	=config[config['host']]["job_arriba"],
+		batch	=config[config['host']]["job_hla_hd"],
 		path	=config["hla-hd_path"],
 		freq	=config["freq_data"],
 		dict	=config["dictionary"],

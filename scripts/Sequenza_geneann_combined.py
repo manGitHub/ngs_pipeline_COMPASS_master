@@ -22,7 +22,7 @@ final_temp= sys.argv[9]
 
 def gene_agg(data):
                  aggs_res = data.sort_values(by=['#chromosome','start.pos','end.pos']).groupby('Gene',sort= False,as_index=False).agg({'#chromosome': 'first', 'start.pos': 'first','end.pos': 'last','CNt': 'median', 'A': 'median','B':'median'})
-                 aggs_res['CNt']= aggs_res['CNt'].round(0).astype(int)
+                 aggs_res['CNt']= aggs_res['CNt'].astype(int)
                  aggs_res['A'] = aggs_res['A'].astype(int)
                  aggs_res['B'] = aggs_res['B'].astype(int)
                  return aggs_res

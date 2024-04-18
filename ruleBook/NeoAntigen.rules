@@ -101,9 +101,13 @@ rule OptiType:
 	#######################
 	module load OptiType/{version}
 	if [ {params.type} == 'RNAseq' ]; then
-	OptiTypePipeline.py -i {input.R[0]} {input.R[1]} --rna -v -o {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/HLA/OptiType/ -c {params.opti} --prefix {wildcards.sample}
+		type='--rna'
 	else
-        OptiTypePipeline.py -i {input.R[0]} {input.R[1]} --dna -v -o {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/HLA/OptiType/ -c {params.opti} --prefix {wildcards.sample}
+		type='--dna'
+	fi
+	if [[$(OptiTypePipeline.py -i {input.R[0]} {input.R[1]} $type -v -o {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/HLA/OptiType/ -c {params.opti} --prefix {wildcards.sample} 2>&1 | grep -m 1 -e "need more than 0 values to unpack" -e "The constraint expression resolved to a trivial Boolean (False) instead of a Pyomo object.")]]; then
+	echo "no HLA called, output empty file"
+	touch {output}
 	fi
 	#######################
 	"""

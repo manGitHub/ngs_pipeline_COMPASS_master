@@ -454,16 +454,19 @@ rule FASTQC:
 		batch     = config[config['host']]["job_fastqc"]
 	shell: """
 	#######################
+    module use --prepend /data/Compass/local/lmod/modulefiles
+    module load fastqc/0.12.1_singul
+
 	R1=`echo "{input.R}" |sed -e 's/ /\\n/g' |grep "_R1"`
 	R2=`echo "{input.R}" |sed -e 's/ /\\n/g' |grep "_R2"`
 
 	echo "Working on ${{R1}}"
-	zcat ${{R1}} |/data/Compass/local/software/fastqc/0.11.2/fastqc --extract -t ${{THREADS}} -o {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/ -d ${{LOCAL}} /dev/stdin
+	zcat ${{R1}} | fastqc --extract -t ${{THREADS}} -o {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/ -dir ${{LOCAL}} /dev/stdin
 	mv {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/stdin_fastqc.html {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/{wildcards.sample}_R1_fastqc.html
 	mv {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/stdin_fastqc      {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/{wildcards.sample}_R1_fastqc
 	mv {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/stdin_fastqc.zip  {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/{wildcards.sample}_R1_fastqc.zip
 	echo "Working on ${{R2}}"
-	zcat ${{R2}} |/data/Compass/local/software/fastqc/0.11.2/fastqc --extract -t ${{THREADS}} -o {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/ -d ${{LOCAL}} /dev/stdin
+	zcat ${{R2}} | fastqc --extract -t ${{THREADS}} -o {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/ -dir ${{LOCAL}} /dev/stdin
 	mv {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/stdin_fastqc.html {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/{wildcards.sample}_R2_fastqc.html
 	mv {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/stdin_fastqc      {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/{wildcards.sample}_R2_fastqc
 	mv {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/stdin_fastqc.zip  {wildcards.base}/{TIME}/{wildcards.sample}/qc/fastqc/{wildcards.sample}_R2_fastqc.zip

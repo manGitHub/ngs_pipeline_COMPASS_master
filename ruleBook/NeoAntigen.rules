@@ -124,7 +124,6 @@ rule HLA_HD:
 	params:
 		rulename="HLA_HD",
 		batch	=config[config['host']]["job_hla_hd"],
-		path	=config["hla-hd_path"],
 		freq	=config["freq_data"],
 		dict	=config["dictionary"],
 		split	=config["gene_split"],
@@ -132,8 +131,7 @@ rule HLA_HD:
 		home     = WORK_DIR
 	shell: """
 	#######################
-	export PATH={params.path}:$PATH
-	module load bowtie/{version} samtools/{params.sam}
+	module load hlahd/1.7.0.v1.0
 	cd ${{LOCAL}}/
 	gunzip -c {input.R[0]} > {wildcards.sample}_R1.fastq
 	gunzip -c {input.R[1]} > {wildcards.sample}_R2.fastq

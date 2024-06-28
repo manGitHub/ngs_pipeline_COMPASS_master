@@ -26,9 +26,9 @@ rule UnionSomaticCalls:
         params:
             rulename = "UnionSomaticCalls",
             batch    = config[config['host']]['job_default'],
-            tool     = NGS_PIPELINE + "/scripts/UnionSomaticCalls.pl"
+            tool     = NGS_PIPELINE + "/scripts/" + config["UnionSomaticCalls"]
         shell: """
         #######################
-        perl {params.tool} {input.Files} >{output}
+        python3 {params.tool} {input.Files} >{output}
         #######################
         """

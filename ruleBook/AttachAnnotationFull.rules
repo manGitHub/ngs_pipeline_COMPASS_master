@@ -7,16 +7,17 @@ rule AttachAnnotationFull:
         input:
             txt="{subject}/{TIME}/{base1}/calls/{base}.snpEff.txt",
             ref="{subject}/{TIME}/annotation/{subject}.Annotations.final.txt",
-            convertor  = NGS_PIPELINE + "/scripts/addAnnotations2vcf.pl"
         output:
-            txt="{subject}/{TIME}/{base1}/calls/{base}.annotatedFull.txt"
+            txt="{subject}/{TIME}/{base1}/calls/{base}.annotatedFull.txt",
         version: "1.0"
         params:
             rulename   = "AttachAnnotationFull",
             batch      = config[config['host']]["job_addbackann"],
+            convertor  = NGS_PIPELINE + "/scripts/" + config["addAnnotations2vcf_full"],
+
         shell: """
         #######################
-        perl {input.convertor} {input.ref}  {input.txt} >{output.txt}
+        python3 {params.convertor} {input.ref}  {input.txt} >{output.txt}
         #######################
         """
 

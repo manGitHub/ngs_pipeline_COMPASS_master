@@ -42,7 +42,7 @@ for i in anno_df.index:
             break
     if iswhitelist:
         continue
-    if row['Func_refGene'].startswith('splicing') or (row['Func_refGene'].startswith('exonic') and any([func in row['ExonicFunc_refGene'] for func in ['nonsynonymous','stop','frameshift']])):
+    if row['Func_refGene'].startswith('splicing') or (row['Func_refGene'].startswith('exonic') and any([func in row['ExonicFunc_refGene'] for func in ['nonsynonymous','startloss','startgain','stop','frameshift']])):
         #row[pop_freqs] = row[pop_freqs].apply(lambda s: -2 if s=='.' else float(s))
         #if all(row[pop_freqs].apply(lambda s: s <= maf or pd.isnull(s))):
         if all(row[pop_freqs].apply(lambda s: float(s) <= maf if not s == '.' else True)):

@@ -968,10 +968,7 @@ rule VCF2TXT:
 		vcf2txt       =NGS_PIPELINE + "/scripts/" + config["vcf2txt"],
 	shell: """
 	#######################
-	PATH=/data/Compass/local/software/annovar/2018-04-16:$PATH
-	ANNOVAR_HOME=/data/Compass/local/software/annovar/2018-04-16
-	ANNOVAR_DATA=/fdb/annovar/current
-	ANNOVAR_DATA_CURRENT=/fdb/annovar/current
+	module load annovar/2020-06-08
 	python3 {params.vcf2txt} {input.vcf} ${{LOCAL}} >{output.txt}
 	#######################
 	"""
@@ -992,10 +989,7 @@ rule FormatInput:
 		convertor  = NGS_PIPELINE + "/scripts/" + config["MakeAnnotationInputs"],
 	shell: """
 	#######################
-	PATH=/data/Compass/local/software/annovar/2018-04-16:$PATH
-	ANNOVAR_HOME=/data/Compass/local/software/annovar/2018-04-16
-	ANNOVAR_DATA=/fdb/annovar/current
-	ANNOVAR_DATA_CURRENT=/fdb/annovar/current
+	module load annovar/2020-06-08
 	export LC_ALL=C
 	cut -f 1-5 {input.txtFiles} {input.hotspot} |sort |uniq > {wildcards.subject}/{TIME}/annotation/AnnotationInput
 	python3 {params.convertor} {wildcards.subject}/{TIME}/annotation/AnnotationInput

@@ -40,6 +40,7 @@
 		"job_bismark"    : "--partition=norm,ccr --time=5-0:00:00 --mem=60G  --cpus-per-task=32 --gres=lscratch:200",
 		"job_cufflinks"  : "--partition=norm,ccr --time=10:00:00 --mem=50G  --cpus-per-task=30",
 		"job_featCount"  : "--partition=quick,norm --time=04:00:00 --mem=50G  --cpus-per-task=10  --gres=lscratch:100",
+                "job_lohhla"     : "--partition=quick,norm --time=04:00:00 --mem=50G  --cpus-per-task=10  --gres=lscratch:500",
 		"job_hotspot"    : "--partition=quick,norm    --time=02:00:00 --mem=10G  --cpus-per-task=4   --gres=lscratch:02",
 		"job_bedtools"   : "--partition=norm,ccr --time=10:00:00 --mem=20G  --cpus-per-task=2 --gres=lscratch:02",
 		"job_vcf2txt"    : "--partition=quick,norm    --time=01:00:00 --mem=02G  --cpus-per-task=2",

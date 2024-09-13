@@ -1,4 +1,6 @@
 HLA ={}
+LOHHLA = []
+NORM_CALLS = []
 if 'subject' in config:
 	for subject in config['subject']:
 		for library in config['subject'][subject]:
@@ -8,12 +10,22 @@ if 'subject' in config:
 				TARGET    += [subject+"/"+TIME+"/"+library+"/HLA/"+library+".Calls.txt"]
 				TARGET	  += [subject+"/"+TIME+"/"+library+"/HLA/OptiType/"+library+"_result.tsv"]
 				TARGET    += [subject+"/"+TIME+"/"+library+"/HLA/HLA-HD/"+library+"_final.result.txt"]
+				if config["sample_type"][library] =='Tumor':
+					TARGET +=[subject+"/"+TIME+"/"+library+"/HLA/LOHHLA/"+library+"_hla_cn.txt"]
+					TARGET +=[subject+"/"+TIME+"/"+library+"/HLA/LOHHLA/"+library+"_LOHstatus.txt"]
+					TARGET +=[subject+"/"+TIME+"/"+library+"/HLA/LOHHLA/"+library+"_hla_input.txt"]
+					TARGET +=[subject+"/"+TIME+"/"+library+"/HLA/LOHHLA/"+library+"_purityinput.txt"]
+					TARGET +=[subject+"/"+TIME+"/"+library+"/HLA/LOHHLA/"+library+".LOHHLA.pdf"]
+					TARGET +=[subject+"/"+TIME+"/"+library+"/HLA/LOHHLA/"+library+"_Alleles_not_processed.txt"]
+					LOHHLA = [subject+"/"+TIME+"/"+library+"/HLA/LOHHLA/"+library+"_LOHstatus.txt"]
+
 if 'sample_references' in config:
 	if len(config['sample_references']) > 0:
 		for Tumor in config['sample_references']:
 			for Normal in config['sample_references'][Tumor]:
 				OptiType    = "{subject}/{TIME}/{sample}/HLA/OptiType/{sample}_result.tsv".format(TIME=TIME, subject=SAMPLE_TO_SUBJECT[Normal], sample=Normal)
 				HLA_HD   = "{subject}/{TIME}/{sample}/HLA/HLA-HD/{sample}_final.result.txt".format(TIME=TIME, subject=SAMPLE_TO_SUBJECT[Normal], sample=Normal)
+				NORM_CALLS = "{subject}/{TIME}/{sample}/HLA/{sample}.Calls.txt".format(TIME=TIME, subject=SAMPLE_TO_SUBJECT[Normal], sample=Normal)
 				if config['sample_captures'][Tumor] not in config['Panel_List']:
 					# any output which is desired on all somatic libraries but Panel goes here, the list of panel captures should be maintained in the Panel_List in config file
 					HLA[Tumor] = [OptiType, HLA_HD]
@@ -146,16 +158,23 @@ rule MergeHLA:
 	input:
 		A="{base}/{TIME}/{sample}/HLA/HLA-HD/{sample}_final.result.txt",
 		B="{base}/{TIME}/{sample}/HLA/OptiType/{sample}_result.tsv",
+		C=LOHHLA
 	output:
 		"{base}/{TIME}/{sample}/HLA/{sample}.Calls.txt"
 	params:
-		rulename = "MergeHLA",
-		Tool=NGS_PIPELINE + "/scripts/consensusHLA.py",
-		batch    = config[config['host']]["job_default"]
+		rulename= "MergeHLA",
+		Tool	= NGS_PIPELINE + "/scripts/consensusHLA.py",
+		LOHtool	= NGS_PIPELINE + "/scripts/consensusHLA_LOHHLA.py",
+		batch	= config[config['host']]["job_default"],
+		type	= lambda wildcards: config['sample_type'][wildcards.sample]
 	shell: """
 	#######################
 	export LC_ALL=C
-	python3 {params.Tool} {input.B} {input.A} {output}	
+	if [ {params.type} == 'Normal' ]; then
+		python3 {params.LOHtool} {input.B} {input.A} {input.C} {output}
+	else
+		python3 {params.Tool} {input.B} {input.A} {output}
+	fi
 	#######################
 	"""
 ############
@@ -193,7 +212,8 @@ rule VEP:
 #############
 rule pVACseq:
 	input:
-		"{base}/{TIME}/{sample}/NeoAntigen/{sample}.final.vcf"
+		NORM_CALLS,
+		vcf = "{base}/{TIME}/{sample}/NeoAntigen/{sample}.final.vcf"
 	output:
 		"{base}/{TIME}/{sample}/NeoAntigen/MHC_Class_I/{sample}.final.tsv"
 	version: config['pvacseq']
@@ -210,10 +230,68 @@ rule pVACseq:
 	allele=`cut -f1 {wildcards.base}/{wildcards.TIME}/{params.normal}/HLA/{params.normal}.Calls.txt |grep -v Allele|tr '\\n' ',' |sed -e 's/,$//g'`
 	
 	module load pvactools/{version} 
-        pvacseq run --iedb-install-directory {params.IEDB} -e 8,9,10,11,12,13,14 -t ${{SLURM_CPUS_ON_NODE}} --fasta-size=50 {input} {wildcards.sample} ${{allele}} {{NNalign,NetMHC,NetMHCIIpan,NetMHCcons,NetMHCpan,PickPocket,SMM,SMMPMBEC,SMMalign}} {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen
+        pvacseq run --iedb-install-directory {params.IEDB} -e 8,9,10,11,12,13,14 -t ${{SLURM_CPUS_ON_NODE}} --fasta-size=50 {input.vcf} {wildcards.sample} ${{allele}} {{NNalign,NetMHC,NetMHCIIpan,NetMHCcons,NetMHCpan,PickPocket,SMM,SMMPMBEC,SMMalign}} {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen
 	wait
 	export LC_ALL=C
 	sort {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen/MHC_Class_I/{wildcards.sample}.filtered.tsv |uniq > {output}
 	perl {params.tool} {output} |sort |uniq >{wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen/{wildcards.sample}.final.txt
+	#######################
+	"""
+############
+##       LOHHLA
+#############
+rule LOHHLA:
+	input:
+		bam = lambda wildcards: somaticPairs[wildcards.sample],
+		HD = lambda wildcards: HLA[wildcards.sample],
+		seq = "{base}/{TIME}/{sample}/sequenza/{sample}/{sample}_alternative_solutions.txt",
+		geneLevel = "{base}/{TIME}/{sample}/sequenza/{sample}_genelevel.txt"
+	output:
+		hla = '{base}/{TIME}/{sample}/HLA/LOHHLA/{sample}_hla_input.txt',
+		purity = '{base}/{TIME}/{sample}/HLA/LOHHLA/{sample}_purityinput.txt',
+		table = "{base}/{TIME}/{sample}/HLA/LOHHLA/{sample}_hla_cn.txt",
+		plot = "{base}/{TIME}/{sample}/HLA/LOHHLA/{sample}.LOHHLA.pdf",
+		notProc = "{base}/{TIME}/{sample}/HLA/LOHHLA/{sample}_Alleles_not_processed.txt",
+		status = '{base}/{TIME}/{sample}/HLA/LOHHLA/{sample}_LOHstatus.txt'
+	version: config['lohhla']
+	params:
+		rulename 	= "LOHHLA",
+		batch 		= config[config['host']]["job_lohhla"],
+		create   	= NGS_PIPELINE + "/scripts/" + config['lohhla_create'],
+                create2         = NGS_PIPELINE + "/scripts/" + config['lohhla_create2'],
+		alleles		= config['lohhla_alleles'],
+		home		= WORK_DIR,
+		lohhla 		= NGS_PIPELINE + "/scripts/" + config['lohhla_script'],
+        	rScript 	= NGS_PIPELINE + "/scripts/" + config['lohhla_rScript'],
+        	hlafasta 	= config['lohhla_hlafasta'],
+        	hladat 		= config['lohhla_hladat'],
+        	coordinateFile 	= config['lohhla_coordinateFile'],
+		tableGenScript	= NGS_PIPELINE + "/scripts/" + config['lohhla_tableGenScript'],
+		getStatus	= NGS_PIPELINE + "/scripts/" + config['lohhla_getStatus'],
+        	samtools 	= config['samtools_LOHHLA'],
+        	GATK 		= config['GATK_LOHHLA'],
+        	novo 		= config['novo'],
+        	R 		= config['version_R_LOHHLA'],
+        	bedT 		= config['bedtools_LOHHLA'],
+        	jelly 		= config['jellyfish'],
+		Tbam            = lambda wildcards: somaticPairs[wildcards.sample][0].split('/')[-1].replace('.bwa.final.bam','_recal.bam'),
+		Nbam		= lambda wildcards: somaticPairs[wildcards.sample][2].split('/')[-1].replace('.bwa.final.bam','_recal.bam'),
+		rLib		= config['lohhla_rLibs']
+	shell: """
+	#######################
+	cd ${{LOCAL}}/
+	#set +u
+	#source myconda
+	#conda activate LOHHLA_new
+	#set -u
+	#
+	mkdir -p {WORK_DIR}/{wildcards.base}/{TIME}/{wildcards.sample}/HLA/LOHHLA/
+	python3 {params.create} {TIME} {WORK_DIR}/{input.bam[0]} {WORK_DIR}/{input.bam[2]} {WORK_DIR}/{input.HD[1]} {WORK_DIR}/{input.seq} ${{LOCAL}}
+	python3 {params.create2} {wildcards.sample} {params.alleles} {WORK_DIR}/{output.hla} {WORK_DIR}/{output.purity} 
+	module load samtools/{params.samtools} GATK/{params.GATK} novocraft/{params.novo} R/{params.R} bedtools/{params.bedT} jellyfish/{params.jelly}
+	python {params.lohhla} ${{LOCAL}}/{params.Tbam} ${{LOCAL}}/{params.Nbam} {WORK_DIR}/{output.purity} {WORK_DIR}/{output.hla} {TIME} {WORK_DIR}/{wildcards.base}/{TIME}/{wildcards.sample}/HLA/LOHHLA/ {wildcards.sample} {params.rScript} {params.hlafasta} {params.hladat} {params.coordinateFile} {params.tableGenScript} {WORK_DIR}/{output.table} {WORK_DIR}/{output.plot} {WORK_DIR}/{output.notProc} {params.rLib} &&
+	chmod -R 770 {WORK_DIR}/{output.table} {WORK_DIR}/{output.plot}
+	chgrp -R Compass {WORK_DIR}/{output.table} {WORK_DIR}/{output.plot}
+	python3 {params.getStatus} {WORK_DIR}/{output.table} {WORK_DIR}/{input.geneLevel} {WORK_DIR}/{input.seq} > {WORK_DIR}/{output.status}
 	#######################
 	"""

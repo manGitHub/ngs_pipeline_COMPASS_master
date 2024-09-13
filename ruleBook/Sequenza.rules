@@ -12,6 +12,7 @@ if 'sample_references' in config:
 			TARGET +=[subject+"/"+TIME+"/"+sample+"/sequenza/"+sample+"/"+sample+"_segments.txt"]	
 			TARGET +=[subject+"/"+TIME+"/"+sample+"/sequenza/"+sample+".txt"]
 			TARGET +=[subject+"/"+TIME+"/"+sample+"/sequenza/"+sample+"_genelevel.txt"]
+			TARGET +=[subject+"/"+TIME+"/"+sample+"/sequenza/"+sample+"/"+sample+"_alternative_solutions.txt"]
 
 ############
 #       Sequenza
@@ -53,7 +54,8 @@ rule Sequenza_geneAnnot:
                 file="{subject}/{TIME}/{Tumor}/sequenza/{Tumor}/{Tumor}_segments.txt",
                 interval=lambda wildcards: config['target_intervals'][config['sample_captures'][wildcards.Tumor]],
                 py_script=NGS_PIPELINE+"/scripts/Sequenza_geneann_combined.py",
-                geneList=config["annovar_data"]+config["geneList"]
+                geneList=config["annovar_data"]+config["geneList"],
+		pur="{subject}/{TIME}/{Tumor}/sequenza/{Tumor}/{Tumor}_alternative_solutions.txt"
         
         output:
                 txt="{subject}/{TIME}/{Tumor}/sequenza/{Tumor}.txt",
@@ -77,7 +79,22 @@ rule Sequenza_geneAnnot:
         
         python3 {input.py_script} {input.file} {input.interval} {input.geneList} {params.segment_1} {params.py_intersection1} {params.result_temp1} {params.gene_seperated_file} {params.py_intersection2} {params.final_temp} {output.txt} {output.aggregate}
         rm -rf {params.segment_1} {params.py_intersection1} {params.result_temp1} {params.gene_seperated_file} {params.py_intersection2} {params.final_temp}        
-   
+	# if empty purity file or purity less than 0.3, rename output and generate empty output files
+        if grep -q cellularity {input.pur}; then
+                pur=`awk '{{ print $1 }}' {input.pur} | sed -n '2p'`
+                limit=0.3
+                if [ 1 -eq "$(echo "${{pur}} < ${{limit}}" | bc)" ]; then
+                        mv {output.aggregate} {output.aggregate}_lowPurity
+                        touch {output.aggregate}
+			mv {input.file} {input.file}_lowPurity
+			touch {input.file}
+                fi
+        else
+		mv {output.aggregate} {output.aggregate}_lowPurity
+                touch {output.aggregate}
+		mv {input.file} {input.file}_lowPurity
+		touch {input.file}
+        fi
         #######################
         """
 

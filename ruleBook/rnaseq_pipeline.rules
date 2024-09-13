@@ -242,7 +242,7 @@ rule fusion_annotation:
 		batch           = config[config["host"]]["job_annot"] 
 	shell: """
 	#######################
-	module load singularity/{version}
+	module load singularity
 	singularity exec -e --bind {params.work_dir},{params.FusionPlot} {params.image} processFusionCase.sh \
 		-d {params.work_dir} \
 		-p {wildcards.subject} \

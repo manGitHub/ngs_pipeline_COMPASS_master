@@ -26,6 +26,8 @@
 	"fusion_fasta"		: "/data/Compass/Ref/hg19/fusion/FusionPlot/hg19.fasta",
 	"fusion_image"		: "/data/Compass/Tools/FusionTools/fusion_tools_v1.sif",
 	"FusionPlot"		: "/data/Compass/Ref/hg19/fusion/FusionPlot/",
+	"QCI_cnvkitGenes"	: "/data/Compass/Ref/hg19/cnvkit/FinalExomeCNVgenelist_459_081224.xlsx",
+	"QCI_cn_vcf"		: "/data/Compass/Ref/hg19/cnvkit/QCI.blank.CN.vcf",
 	"tCellExtrect"		: "/data/Compass/Tools/TCellExtrect/",
 	"tCell_image"		: "/data/Compass/Tools/TCellExtrect/tcell_extrect_v1.sif",
 	"tCell_bed_dir"		: "/data/Compass/Ref/hg19/design/",

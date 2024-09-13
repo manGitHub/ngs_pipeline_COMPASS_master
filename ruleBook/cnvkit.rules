@@ -6,6 +6,9 @@ for subject in config['subject']:
 			else:
 				for sample in config['sample_references']: 
 					TARGET +=[subject+"/"+TIME+"/"+sample+"/cnvkit/"+sample+".cnr"]
+					TARGET +=[subject+"/"+TIME+"/"+sample+"/cnvkit/"+sample+".call.cns"]
+					TARGET +=[subject+"/"+TIME+"/"+sample+"/cnvkit/"+sample+".cnvkit.vcf"]
+					TARGET +=[subject+"/"+TIME+"/"+sample+"/cnvkit/"+sample+"_genelevel.txt"]
 ############
 #       cnvkit
 ############
@@ -36,19 +39,63 @@ rule cnvkitPaired:
 		lambda wildcards: somaticPairs[wildcards.sample],
 		access=config["cnvkit_access"],
 		ref=config["reference"],
-		interval=lambda wildcards: config['target_intervals'][pairedCapture[wildcards.sample]]
+		interval=lambda wildcards: config['target_intervals'][pairedCapture[wildcards.sample]],
+		seq="{base}/{TIME}/{sample}/sequenza/{sample}/{sample}_alternative_solutions.txt",
+		mut="{base}/{TIME}/{sample}/calls/{sample}.MuTect.raw.vcf"
 	output:
-		"{base}/{TIME}/{sample}/cnvkit/{sample}.cnr"
+		"{base}/{TIME}/{sample}/cnvkit/{sample}.cnr",
+		call="{base}/{TIME}/{sample}/cnvkit/{sample}.call.cns",
+		geneLevel="{base}/{TIME}/{sample}/cnvkit/{sample}_genelevel.txt"
 	version: config["cnvkit"]
 	params:
 		rulename  = "cnvkitPaired",
 		batch     = config[config['host']]["job_cnvkit"],
+		annot 	  = NGS_PIPELINE + "/scripts/" + config['cnvkit_geneLevel'],
+		bedtools  = config['bedtools_LOHHLA'],
+		geneList  = config["annovar_data"]+config["geneList"],
 	shell: """
 	#######################
 	module load cnvkit/{version}
-	cnvkit.py batch -p ${{THREADS}} --access {input.access} --fasta  {input.ref} --targets {input.interval} {input[0]} --output-dir {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/cnvkit/ --normal {input[2]} 
+	cnvkit.py batch -p ${{THREADS}} --access {input.access} --fasta  {input.ref} --targets {input.interval} {input[0]} --drop-low-coverage --output-dir {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/cnvkit/ --normal {input[2]} 
 	mv {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/cnvkit/{wildcards.sample}.bwa.final.cns {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/cnvkit/{wildcards.sample}.cns
 	mv {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/cnvkit/{wildcards.sample}.bwa.final.cnr {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/cnvkit/{wildcards.sample}.cnr
 	cnvkit.py scatter -s {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/cnvkit/{wildcards.sample}.cn{{s,r}} -o {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/cnvkit/{wildcards.sample}.pdf
+	if grep -q cellularity {input.seq}; then
+		pur=`awk '{{ print $1 }}' {input.seq} | sed -n '2p'`
+		cnvkit.py call -m clonal {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/cnvkit/{wildcards.sample}.cns --purity ${{pur}} -v {input.mut} -o {output.call}
+		limit=0.3
+		if [ 1 -eq "$(echo "${{pur}} < ${{limit}}" | bc)" ]; then
+			mv {output.call} {output.call}_lowPurity
+			touch {output.call}
+		fi
+	else
+		touch {output.call}
+	fi
+	module load bedtools/{params.bedtools}
+	python3 {params.annot} {wildcards.sample} {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/cnvkit/ {input.interval} {params.geneList}
 	#######################
 	"""
+############
+#       cnvkit_QCI
+############
+rule cnvkit_QCI:
+	input:
+		"{base}/{TIME}/{sample}/cnvkit/{sample}.call.cns"
+	output:
+		"{base}/{TIME}/{sample}/cnvkit/{sample}.cnvkit.vcf"
+	params:
+		rulename = "cnvkit_QCI",
+		batch = config[config['host']]['job_default'],
+		qci_output = WORK_DIR + "/QCI_VCFfiles",
+		QCI = NGS_PIPELINE + "/scripts/" + config['cnvkit_QCI'],
+		genes = config['QCI_cnvkitGenes'],
+		bed = lambda wildcards: config['target_intervals'][pairedCapture[wildcards.sample]],
+		header = config['QCI_cn_vcf']
+	shell: """
+        #######################
+	if [ ! -d "{params.qci_output}/{TIME}" ]; then mkdir -p {params.qci_output}/{TIME}; fi
+	python3 {params.QCI} {input} {params.bed} {params.genes} {params.header} {wildcards.sample} {params.qci_output}/{TIME}/{wildcards.sample}.cnvkit.vcf 
+	cp {params.qci_output}/{TIME}/{wildcards.sample}.cnvkit.vcf {output} 
+        #######################
+	"""
+

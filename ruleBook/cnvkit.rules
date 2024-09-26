@@ -73,6 +73,8 @@ rule cnvkitPaired:
 	fi
 	module load bedtools/{params.bedtools}
 	python3 {params.annot} {wildcards.sample} {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/cnvkit/ {input.interval} {params.geneList}
+	rm -rf {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/cnvkit/*temp*
+	rm -rf {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/cnvkit/cns.tmp
 	#######################
 	"""
 ############

@@ -53,7 +53,10 @@ low_purity = ['Inconclusive; purity Level less than .3']
 no_LOH = ['No LOH','Inconclusive; LOHHLA doesnt show significant Pvalue for copy difference between alleles']
 f = open(LOHHLA,'r')
 lohhla = f.readlines()
-lohhla = pd.DataFrame([lohhla[2].split(','),lohhla[5].split(','),lohhla[8].split(',')],columns=['Status','Lost','Allele_1','Allele_2'])
+lohhla = pd.DataFrame([lohhla[2].split(','),lohhla[5].split(','),lohhla[8].split(',')])
+if len(lohhla.columns) == 1:
+    lohhla['Lost'], lohhla['Allele_1'], lohhla['Allele_2'] = None, None, None
+lohhla.columns = ['Status','Lost','Allele_1','Allele_2']
 lohhla = lohhla.replace('"','',regex=True).replace("'","",regex=True).replace('\\n','',regex=True)
 lohhla['Status'] = lohhla['Status'].str.replace(")","").str.replace("(","")
 one = lohhla[['Allele_1','Status','Lost']]

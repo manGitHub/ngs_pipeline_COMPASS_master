@@ -40,9 +40,9 @@ allele_1_gaps     <- NA
 allele_2_mismatch <- NA 
 allele_2_gaps     <- NA
 
-
-hla_allele_data <- read.table(paste0(rdatadir,"/",sname,".DNA.HLAlossPrediction_CI.txt"), sep="\t",header = TRUE)
-if(nrow(hla_allele_data)>1){
+hla_allele_data_file = paste0(rdatadir,"/",sname,".DNA.HLAlossPrediction_CI.txt")
+if (file.info(hla_allele_data_file)$size > 1) {
+hla_allele_data <- read.table(hla_allele_data_file, sep="\t",header = TRUE)
 
 all <- do.call(rbind, unlist(apply(hla_allele_data, 1, function(x){
   

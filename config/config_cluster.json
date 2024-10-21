@@ -14,7 +14,7 @@
 		"job_RSEM"       : "--partition=norm,ccr --time=30:00:00 --mem=30G  --cpus-per-task=4  --gres=lscratch:200",
 		"job_STAR_TPM"   : "--partition=norm,ccr --time=10:00:00 --mem=100G  --cpus-per-task=12  --gres=lscratch:400",
 		"job_PPH2"       : "--partition=norm,ccr --time=24:00:00 --mem=04G  --cpus-per-task=2   --gres=lscratch:10",
-		"job_arriba"     : "--partition=norm,ccr --time=06:00:00 --mem=70G  --cpus-per-task=30  --gres=lscratch:400",
+		"job_arriba"     : "--partition=norm,ccr --time=06:00:00 --mem=100G  --cpus-per-task=30  --gres=lscratch:400",
 		"job_SIFT"       : "--partition=norm,ccr --time=24:00:00 --mem=04G  --cpus-per-task=2   --gres=lscratch:10",
 		"job_tophat"     : "--partition=norm,ccr --time=30:00:00 --mem=200G  --cpus-per-task=32  --gres=lscratch:600",
 		"job_markdup"    : "--partition=norm,ccr --time=25:00:00 --mem=180G  --cpus-per-task=15  --gres=lscratch:190",

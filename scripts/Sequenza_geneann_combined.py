@@ -27,6 +27,16 @@ def gene_agg(data):
                  aggs_res['B'] = aggs_res['B'].astype(int)
                  return aggs_res
 
+gene_aliases = {
+     "AFDN":"MLLT4",
+    "NSD2":"WHSC1",
+    "NSD3":"WHSC1L1",
+    "SEPTIN9":"SEPT9",
+    "TENT5C":"FAM46C",
+    "H3-3A":"H3F3A",
+    "H3C2":"HIST1H3B",
+            }
+reverse_alias = {v: k for k, v in gene_aliases.items()}
 
 #Removing quotes from the input file
 with open(input_file, 'r') as f, open(segment_temp1, 'w') as fo:
@@ -114,6 +124,7 @@ if os.stat(final_temp).st_size != 0:
              df_read = pd.read_csv(sys.argv[10],delimiter = '\t')
              df_1 = gene_agg(df_read)
              df_final= df_1[['#chromosome','start.pos','end.pos','Gene','CNt', 'A','B']]
+             df_final = df_final.replace(reverse_alias)
              df_final.to_csv(sys.argv[11],sep='\t',header=True, index= False)
 else:
     print('The temp file is empty; coming out of the pipeline')

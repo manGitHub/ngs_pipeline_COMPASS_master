@@ -85,6 +85,7 @@ rule cnvkit_QCI:
 		"{base}/{TIME}/{sample}/cnvkit/{sample}.call.cns"
 	output:
 		"{base}/{TIME}/{sample}/cnvkit/{sample}.cnvkit.vcf"
+	version: config["cnvkit"]
 	params:
 		rulename = "cnvkit_QCI",
 		batch = config[config['host']]['job_default'],
@@ -97,7 +98,13 @@ rule cnvkit_QCI:
         #######################
 	if [ ! -d "{params.qci_output}/{TIME}" ]; then mkdir -p {params.qci_output}/{TIME}; fi
 	python3 {params.QCI} {input} {params.bed} {params.genes} {params.header} {wildcards.sample} {params.qci_output}/{TIME}/{wildcards.sample}.cnvkit.vcf 
-	cp {params.qci_output}/{TIME}/{wildcards.sample}.cnvkit.vcf {output} 
+	cp {params.qci_output}/{TIME}/{wildcards.sample}.cnvkit.vcf {output}
+	
+	module load cnvkit/{version}
+	cnvkit.py sex \
+	{wildcards.base}/{wildcards.TIME}/{wildcards.sample}/cnvkit/reference.cnn \
+	{wildcards.base}/{wildcards.TIME}/{wildcards.sample}/cnvkit/{wildcards.sample}.bwa.final.targetcoverage.cnn \
+	{wildcards.base}/{wildcards.TIME}/{wildcards.sample}/cnvkit/{wildcards.sample}.bwa.final.antitargetcoverage.cnn > {params.qci_output}/{TIME}/{wildcards.sample}.sex.txt	
         #######################
 	"""
 

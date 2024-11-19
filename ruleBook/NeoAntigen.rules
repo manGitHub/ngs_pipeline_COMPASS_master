@@ -32,7 +32,8 @@ if 'sample_references' in config:
 	for sample in config['sample_references'].keys():
 		subject=SAMPLE_TO_SUBJECT[sample]
 		if config['sample_captures'][sample] not in config['Panel_List']:
-			TARGET    +=[subject+"/"+TIME+"/"+sample+"/NeoAntigen/MHC_Class_I/"+sample+".final.tsv"]
+#			TARGET    +=[subject+"/"+TIME+"/"+sample+"/NeoAntigen/MHC_Class_I/"+sample+".final.tsv"]
+			TARGET    +=[subject+"/"+TIME+"/"+sample+"/NeoAntigen/"+sample+".final.txt"]
 
 if 'RNASeq' in config:
 	for subject  in config['RNASeq'].keys():
@@ -207,35 +208,92 @@ rule VEP:
 #	python3 {params.merge} {input.HLA[0]} {input.HLA[1]} {wildcards.base}/{wildcards.TIME}/{params.normal}/HLA/{params.normal}.Calls.txt
 	#######################
 	"""
+###########
+#       split_vcf
+###########
+checkpoint split_vcf:
+	input:
+		lambda wildcards: "{base}/{TIME}/" +config['sample_references'][wildcards.sample][0]+"/HLA/" +config['sample_references'][wildcards.sample][0]+".Calls.txt",
+		vcf = "{base}/{TIME}/{sample}/NeoAntigen/{sample}.final.vcf",
+	output:
+		out = directory("{base}/{TIME}/{sample}/NeoAntigen/split"),
+	params:
+		rulename = "split_vcf",
+		tool     = NGS_PIPELINE + "/scripts/split_vcf.py",
+		batch    = config[config['host']]["job_pvacseq"],
+		VEP 	 = config["VEP"],
+		vcftools = config["vcftools"],
+		bcftools = config["bcftools"]
+	shell: """
+	########################
+	module load VEP/{params.VEP} vcftools/{params.vcftools} bcftools/{params.bcftools}
+	mkdir -p {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen/split
+
+		python {params.tool} {input.vcf} {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen/split/
+
+	#########################
+	"""
 ############
-##       pVACSeq
+#       pVACSeq
 #############
 rule pVACseq:
 	input:
 		NORM_CALLS,
-		vcf = "{base}/{TIME}/{sample}/NeoAntigen/{sample}.final.vcf"
+		vcf = "{base}/{TIME}/{sample}/NeoAntigen/split/{sample}_{i}.vcf",
 	output:
-		"{base}/{TIME}/{sample}/NeoAntigen/MHC_Class_I/{sample}.final.tsv"
+		"{base}/{TIME}/{sample}/NeoAntigen/split/{sample}_{i}/MHC_Class_I/{sample}_{i}.filtered.tsv"
 	version: config['pvacseq']
 	params:
 		rulename = "pVACseq",
-		python   = config["version_python"],
 		normal   = lambda wildcards: config['sample_references'][wildcards.sample][0],
-		tool 	 = NGS_PIPELINE + "/scripts/process_pVACSeq.pl",
+		tool 	 = NGS_PIPELINE + "/scripts/pvacseq.sh",
 		IEDB	 = config['IEDB'],
 		batch    = config[config['host']]["job_VEP"],
-		host	 = config['host']
+		host	 = config['host'],
+		pyVer	 = config["version_old_python"],
+		home     = WORK_DIR
 	shell: """
 	#######################
-	allele=`cut -f1 {wildcards.base}/{wildcards.TIME}/{params.normal}/HLA/{params.normal}.Calls.txt |grep -v Allele|tr '\\n' ',' |sed -e 's/,$//g'`
-	
-	module load pvactools/{version} 
-        pvacseq run --iedb-install-directory {params.IEDB} -e 8,9,10,11,12,13,14 -t ${{SLURM_CPUS_ON_NODE}} --fasta-size=50 {input.vcf} {wildcards.sample} ${{allele}} {{NNalign,NetMHC,NetMHCIIpan,NetMHCcons,NetMHCpan,PickPocket,SMM,SMMPMBEC,SMMalign}} {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen
-	wait
-	export LC_ALL=C
-	sort {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen/MHC_Class_I/{wildcards.sample}.filtered.tsv |uniq > {output}
-	perl {params.tool} {output} |sort |uniq >{wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen/{wildcards.sample}.final.txt
+	module load pvactools/{version} python/{params.pyVer}	
+	mkdir -p {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen/split/{wildcards.sample}_{wildcards.i}
+	{params.tool} {params.home}/{wildcards.base}/{wildcards.TIME}/{params.normal}/HLA/{params.normal}.Calls.txt {params.home}/{input.vcf} {wildcards.sample}_{wildcards.i} {params.home}/{wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen/split/{wildcards.sample}_{wildcards.i}
+
+	if [ -f {output} ]
+	then
+		echo "pVACSeq step is complete"
+	else
+		touch {output}
+	fi
 	#######################
+	"""
+
+def aggregate_input(wildcards):
+	checkpoint_output = checkpoints.split_vcf.get(sample=wildcards.sample,base = wildcards.base, TIME = wildcards.TIME).output[0]
+	return expand("{base}/{TIME}/{sample}/NeoAntigen/split/{sample}_{i}/MHC_Class_I/{sample}_{i}.filtered.tsv",base = wildcards.base, TIME = wildcards.TIME, sample = wildcards.sample, i=glob_wildcards(os.path.join(checkpoint_output, "{sample}_{i}.vcf")).i)
+
+
+#############
+#	Merge_pvacseq
+#############
+rule Merge_pvacseq:
+	input:
+		aggregate_input
+	output:
+		"{base}/{TIME}/{sample}/NeoAntigen/{sample}.final.txt"
+	envmodules: config['pvacseq']
+	params:
+		rulename = "Merge_pvacseq",
+		python   = config["version_python"],
+		tool     = NGS_PIPELINE + "/scripts/process_pVACSeq.pl",
+		batch    = config[config['host']]["job_pvacseq"],
+		host	= config['host']
+	shell: """
+	##################
+	awk 'FNR>1 || NR==1' {input} > {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen/{wildcards.sample}.filtered.tsv
+	awk 'NR == 1; NR > 1 {{print $0 | "sort -n"}}' {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen/{wildcards.sample}.filtered.tsv |uniq > {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen/{wildcards.sample}.final.uniq.tsv
+	perl {params.tool} {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen/{wildcards.sample}.final.uniq.tsv |awk 'NR == 1; NR > 1 {{print $0 | "sort -n"}}'|uniq > {output}
+	chgrp Compass {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen/{wildcards.sample}.final.txt
+	##################
 	"""
 ############
 ##       LOHHLA

@@ -7,6 +7,7 @@
 	"samtools_arriba"	: "1.9",
 	"samtools_new"		: "1.12",
 	"samtools_LOHHLA"	: "1.3.1",
+	"bcftools"		: "1.13",
 	"fastqc"		: "0.11.2",
 	"multiQC"		: "1.14",
 	"fastq_screen"		: "0.15.2",

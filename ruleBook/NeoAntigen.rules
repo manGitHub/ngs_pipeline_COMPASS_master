@@ -293,6 +293,7 @@ rule Merge_pvacseq:
 	awk 'NR == 1; NR > 1 {{print $0 | "sort -n"}}' {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen/{wildcards.sample}.filtered.tsv |uniq > {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen/{wildcards.sample}.final.uniq.tsv
 	perl {params.tool} {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen/{wildcards.sample}.final.uniq.tsv |awk 'NR == 1; NR > 1 {{print $0 | "sort -n"}}'|uniq > {output}
 	chgrp Compass {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen/{wildcards.sample}.final.txt
+	rm -rf {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/NeoAntigen/split
 	##################
 	"""
 ############

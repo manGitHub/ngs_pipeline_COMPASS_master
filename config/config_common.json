@@ -1,7 +1,7 @@
 {
-	"pipeline_version"	: "v5.2.0dev",
-	"mail"			: "-c manoj.tyagi@nih.gov -c kristin.valdez@nih.gov -c jung.kim3@nih.gov -c yujin.lee@nih.gov -c rob.schultz@nih.gov",
-        "mails"                 : "-c kristin.valdez@nih.gov",
+	"pipeline_version"	: "v5.2.0",
+	"mail"			: "-c manoj.tyagi@nih.gov -c kristin.valdez@nih.gov -c jung.kim3@nih.gov -c rob.schultz@nih.gov",
+        "mails"                 : "-c manoj.tyagi@nih.gov",
 	"platform"		: "Illumina",
 	"samtools"		: "0.1.19",
 	"samtools_arriba"	: "1.9",

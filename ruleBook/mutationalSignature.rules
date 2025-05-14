@@ -3,6 +3,7 @@ if 'sample_references' in config:
 		subject=SAMPLE_TO_SUBJECT[sample]
 		if config['sample_captures'][sample] not in config['Panel_List']:
 			TARGET +=[subject+"/"+TIME+ACT_DIR+sample+".mutationalSignature.pdf"]
+			TARGET +=[subject+"/"+TIME+ACT_DIR+sample+".sigProfiler.pdf"]
 ############
 #	Mutational Signature
 ############
@@ -24,4 +25,27 @@ rule MutationalSignature:
 	{input.tool} --input {output.v1}.tmp --sample {wildcards.sample} --output {output.v1} --rLib {params.rLib} 
 	rm -rf {output.v1}.tmp
 	#######################
+	"""
+############
+#       SigProfiler
+############
+rule SigProfiler:
+	input:
+		file="{subject}/{TIME}/{sample}/NeoAntigen/{sample}.final.vcf"
+	output:
+		pdf="{subject}/{TIME}/{ACT_DIR}/{sample}.sigProfiler.pdf"
+	params:
+		rulename = "sigProfiler",
+		batch    = config[config['host']]["job_c_QC"],
+		env      = config['sigProf_env'],
+		tool     = NGS_PIPELINE + "/scripts/" + config['sigPro']
+	shell: """
+        #######################
+	source myconda
+	mamba activate {params.env}
+
+	mkdir -p {wildcards.subject}/{TIME}/{wildcards.sample}/SigProfiler
+	cd {wildcards.subject}/{TIME}/{wildcards.sample}/SigProfiler
+	python3 {params.tool} {WORK_DIR}/{input.file} {wildcards.sample} {WORK_DIR}/{output.pdf}
+        #######################
 	"""

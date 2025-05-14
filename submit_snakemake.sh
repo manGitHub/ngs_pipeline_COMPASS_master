@@ -40,7 +40,7 @@ NOW=$runTime
 #export TIME=$(date +"%Y%m%d%H")
 export TMP="$NOW"
 if [[ `hostname` =~ "cn" ]] || [ `hostname` == 'biowulf.nih.gov' ]; then
-	module use --prepend /data/Compass/local/lmod/modulefiles
+	module use /data/Compass/local/lmod/modulefiles
 	module load snakemake/7.7.0
 	export HOST="biowulf.nih.gov"
 elif [[ `hostname` =~ "tghighmem" ]] || [[ `hostname` =~ "tgcompute" ]] || [ `hostname` == 'login01' ] ; then

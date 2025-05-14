@@ -1,7 +1,7 @@
 {
 	"pipeline_version"	: "v5.2.0",
 	"mail"			: "-c manoj.tyagi@nih.gov -c kristin.valdez@nih.gov -c jung.kim3@nih.gov -c rob.schultz@nih.gov",
-        "mails"                 : "-c manoj.tyagi@nih.gov",
+        "mails"                 : "-c kristin.valdez@nih.gov",
 	"platform"		: "Illumina",
 	"samtools"		: "0.1.19",
 	"samtools_arriba"	: "1.9",
@@ -90,6 +90,8 @@
 	"lohhla_rScript"	: "LOHHLAscript.inhouse.CLASS_I_II_07182022_toolsPathsUpdate_hg19.R",
 	"lohhla_tableGenScript"	: "LOHLAtableGenerate.R",
 	"lohhla_getStatus"	: "getLOHstatus.py",
+	"sigProf_env"		: "sigPro",
+	"sigPro"		: "sigPro.py",
 	"Panel_List"		: ["clin.snv.v1", "clin.cnv.v2", "clin.snv.v2", "nbl.panel", "seqcapez.rms.v1", "nbl.somatic.panel", "panel_paed_v5_w5.1"],
 	"failed_exon_params": {
 		"wholegenome"		:{"Normal":"5","Tumor":"5"},

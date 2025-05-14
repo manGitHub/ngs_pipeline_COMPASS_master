@@ -454,7 +454,6 @@ rule FASTQC:
 		batch     = config[config['host']]["job_fastqc"]
 	shell: """
 	#######################
-    module use --prepend /data/Compass/local/lmod/modulefiles
     module load fastqc/0.12.1_singul
 
 	R1=`echo "{input.R}" |sed -e 's/ /\\n/g' |grep "_R1"`

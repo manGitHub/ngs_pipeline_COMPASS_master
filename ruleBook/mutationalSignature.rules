@@ -41,7 +41,7 @@ rule SigProfiler:
 		tool     = NGS_PIPELINE + "/scripts/" + config['sigPro']
 	shell: """
         #######################
-	source myconda
+	source /data/Compass/bin/groupmamba
 	mamba activate {params.env}
 
 	mkdir -p {wildcards.subject}/{TIME}/{wildcards.sample}/SigProfiler

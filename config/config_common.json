@@ -1,5 +1,5 @@
 {
-	"pipeline_version"	: "v5.2.0",
+	"pipeline_version"	: "v5.2.1dev",
 	"mail"			: "-c manoj.tyagi@nih.gov -c kristin.valdez@nih.gov -c jung.kim3@nih.gov -c rob.schultz@nih.gov",
         "mails"                 : "-c kristin.valdez@nih.gov",
 	"platform"		: "Illumina",
@@ -68,6 +68,7 @@
         "arriba_QCI"            : "arriba_QCI.py",
 	"cnvkit_QCI"		: "cnvkit_QCI.py",
 	"cnvkit_geneLevel"	: "cnvkit_geneann_ngs.py",
+	"cnvkit_plot"		: "genome_view.R",
 	"mutationBurden"	: "mutationBurden.py",
 	"makeDBVariantFile"	: "makeDBVariantFile.py",
 	"AddSampleType"		: "AddSampleType.py",

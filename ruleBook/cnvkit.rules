@@ -9,6 +9,7 @@ for subject in config['subject']:
 					TARGET +=[subject+"/"+TIME+"/"+sample+"/cnvkit/"+sample+".call.cns"]
 					TARGET +=[subject+"/"+TIME+"/"+sample+"/cnvkit/"+sample+".cnvkit.vcf"]
 					TARGET +=[subject+"/"+TIME+"/"+sample+"/cnvkit/"+sample+"_genelevel.txt"]
+					TARGET +=[subject+"/"+TIME+"/"+sample+"/cnvkit/"+sample+".cnvkit.genome_view.pdf"]
 ############
 #       cnvkit
 ############
@@ -45,7 +46,8 @@ rule cnvkitPaired:
 	output:
 		"{base}/{TIME}/{sample}/cnvkit/{sample}.cnr",
 		call="{base}/{TIME}/{sample}/cnvkit/{sample}.call.cns",
-		geneLevel="{base}/{TIME}/{sample}/cnvkit/{sample}_genelevel.txt"
+		geneLevel="{base}/{TIME}/{sample}/cnvkit/{sample}_genelevel.txt",
+		plot="{base}/{TIME}/{sample}/cnvkit/{sample}.cnvkit.genome_view.pdf",
 	version: config["cnvkit"]
 	params:
 		rulename  = "cnvkitPaired",
@@ -53,6 +55,8 @@ rule cnvkitPaired:
 		annot 	  = NGS_PIPELINE + "/scripts/" + config['cnvkit_geneLevel'],
 		bedtools  = config['bedtools_LOHHLA'],
 		geneList  = config["annovar_data"]+config["geneList"],
+		plot      = NGS_PIPELINE + "/scripts/" + config['cnvkit_plot'],
+		R         = config["version_R_LOHHLA"],
 	shell: """
 	#######################
 	module load cnvkit/{version}
@@ -75,6 +79,12 @@ rule cnvkitPaired:
 	python3 {params.annot} {wildcards.sample} {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/cnvkit/ {input.interval} {params.geneList}
 	rm -rf {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/cnvkit/*temp*
 	rm -rf {wildcards.base}/{wildcards.TIME}/{wildcards.sample}/cnvkit/cns.tmp
+	if [ -s "{output.call}" ]; then
+        	module load R/{params.R}
+        	Rscript {params.plot} {output.call} {output.plot}
+	else
+		touch {output.plot}
+	fi
 	#######################
 	"""
 ############

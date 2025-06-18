@@ -1,5 +1,5 @@
 {
-	"pipeline_version"	: "v5.2.1dev",
+	"pipeline_version"	: "v5.2.1",
 	"mail"			: "-c manoj.tyagi@nih.gov -c kristin.valdez@nih.gov -c jung.kim3@nih.gov -c rob.schultz@nih.gov",
         "mails"                 : "-c kristin.valdez@nih.gov",
 	"platform"		: "Illumina",
